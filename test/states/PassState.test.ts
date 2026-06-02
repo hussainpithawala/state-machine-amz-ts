@@ -104,20 +104,20 @@ describe("PassState", () => {
     });
 
     it("should throw validation error with empty name", () => {
-        expect(() => new PassState({name: "", nextState: "Next"} as any)).toThrow(
+        expect(() => new PassState({name: "", nextState: "Next"})).toThrow(
             "State name cannot be empty"
         );
     });
 
     it("should throw validation error with wrong type", () => {
         const state = new PassState({name: "WrongType", nextState: "Next"});
-        (state as any).type = "Succeed"; // Bypass TS checks to simulate mutation
+        (state).type = "Succeed"; // Bypass TS checks to simulate mutation
 
         expect(() => state.validate()).toThrow("must have Type 'Pass'");
     });
 
     it("should throw validation error without Next or End", () => {
-        expect(() => new PassState({name: "InvalidPass", end: false} as any)).toThrow(
+        expect(() => new PassState({name: "InvalidPass", end: false})).toThrow(
             "State must have either Next or End"
         );
     });
@@ -292,8 +292,6 @@ describe("PassState", () => {
 
     it("should use default path processor when none is set", async () => {
         // Temporarily clear to force lazy initialization
-        setPathProcessor(undefined as any);
-
         const state = new PassState({name: "DefaultPass", nextState: "NextState"});
         const [output, nextState] = await state.execute(sampleInputData);
 
@@ -433,7 +431,7 @@ describe("PassState", () => {
             {input: undefined, desc: "undefined"},
         ];
 
-        for (const {input, desc} of testCases) {
+        for (const {input} of testCases) {
             const [output, nextState] = await state.execute(input);
             expect(output).toBe(input); // Pass-through without paths
             expect(nextState).toBe("NextState");
@@ -471,16 +469,16 @@ describe("PassState", () => {
         const tasks = [];
 
         for (let i = 0; i < numTasks; i++) {
-            const inputData = {id: i, data: `task_${i}`};
+            const inputData:unknown = {id: i, data: `task_${i}`};
             tasks.push(state.execute(inputData));
         }
 
-        const results = await Promise.all(tasks);
+        const results: [unknown, string | undefined][] = await Promise.all(tasks);
 
         expect(results).toHaveLength(numTasks);
         results.forEach(([output, nextState], i) => {
-            expect((output as any).id).toBe(i);
-            expect((output as any).data).toBe(`task_${i}`);
+            expect((output as [unknown, string | undefined]).id).toBe(i);
+            expect((output as [unknown, string | undefined]).data).toBe(`task_${i}`);
             expect(nextState).toBe("NextState");
         });
     });

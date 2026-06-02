@@ -3,7 +3,6 @@ export { StateMachine, PersistentStateMachine } from './machine'
 export { Executor } from './executor'
 
 // Repositories
-export { InMemoryRepository } from './repository'
 
 // Types
 export type {
