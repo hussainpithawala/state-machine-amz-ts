@@ -6,13 +6,13 @@ import { JSONPath } from 'jsonpath-plus';
 import { PathProcessor } from './base';
 
 class JSONPathProcessor implements PathProcessor {
-    applyInputPath(inputData: any, path?: string): any {
+    applyInputPath(inputData: unknown, path?: string): unknown {
         if (!path) return inputData;
         // wrap: false returns the value directly if single match, undefined if no match, or array if multiple
-        return JSONPath({ path, json: inputData, wrap: false });
+        return JSONPath({ path, json: inputData as Record<string, unknown>, wrap: false });
     }
 
-    applyResultPath(inputData: any, result: any, path?: string): any {
+    applyResultPath(inputData: unknown, result: unknown, path?: string): unknown {
         if (!path) {
             // ASL default: if ResultPath is omitted, the result replaces the input entirely
             return result;
@@ -27,23 +27,20 @@ class JSONPathProcessor implements PathProcessor {
         if (path.startsWith('$.')) {
             const keys: string[] = path.slice(2).split('.');
             // Deep clone to avoid mutating the original input unexpectedly
-            const clonedInput = JSON.parse(JSON.stringify(inputData));
-            let current: any = clonedInput;
+            const clonedInput = JSON.parse(JSON.stringify(inputData)) as Record<string, unknown>;
+            let current = clonedInput;
 
             for (let i = 0; i < keys.length - 1; i++) {
-                // @ts-ignore
-                const key : string = keys[i];
+                const key = keys[i]!;
                 if (current[key] === undefined || current[key] === null) {
                     // Check if next key is a number to decide between array and object
-                    const nextKey = keys[i + 1];
-                    // @ts-ignore
+                    const nextKey = keys[i + 1]!;
                     current[key] = /^\d+$/.test(nextKey) ? [] : {};
                 }
-                current = current[key];
+                current = current[key] as Record<string, unknown>;
             }
 
-            // @ts-ignore
-            const lastKey:string = keys[keys.length - 1];
+            const lastKey = keys[keys.length - 1]!;
             current[lastKey] = result;
             return clonedInput;
         }
@@ -51,9 +48,9 @@ class JSONPathProcessor implements PathProcessor {
         throw new Error(`Complex ResultPath '${path}' is not supported in this basic processor.`);
     }
 
-    applyOutputPath(output: any, path?: string): any {
+    applyOutputPath(output: unknown, path?: string): unknown {
         if (!path) return output;
-        return JSONPath({ path, json: output, wrap: false });
+        return JSONPath({ path, json: output as Record<string, unknown>, wrap: false });
     }
 }
 

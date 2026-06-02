@@ -12,14 +12,14 @@ export interface PassStateConfig {
     inputPath?: string | undefined;
     resultPath?: string | undefined;
     outputPath?: string | undefined;
-    result?: any;
-    parameters?: Record<string, any> | undefined;
+    result?: unknown;
+    parameters?: Record<string, unknown> | undefined;
     comment?: string | undefined;
 }
 
 export class PassState extends BaseState {
-    result?: any;
-    parameters?: Record<string, any> | undefined;
+    result?: unknown;
+    parameters?: Record<string, unknown> | undefined;
 
     constructor(config: PassStateConfig) {
         super();
@@ -40,9 +40,9 @@ export class PassState extends BaseState {
     }
 
     async execute(
-        inputData: any,
-        context?: Record<string, any>
-    ): Promise<[any, string | undefined]> {
+        inputData: unknown,
+        context?: Record<string, unknown>
+    ): Promise<[unknown, string | undefined]> {
         if (!context) context = {};
 
         try {
@@ -52,7 +52,7 @@ export class PassState extends BaseState {
             const processedInput = processor.applyInputPath(inputData, this.inputPath);
 
             // Determine the result to use
-            let stateResult: any;
+            let stateResult: unknown;
             if (this.result !== undefined && this.result !== null) {
                 stateResult = this.result;
             } else if (this.parameters !== undefined && this.parameters !== null) {
@@ -63,7 +63,7 @@ export class PassState extends BaseState {
             }
 
             // Apply result path
-            let combinedData: any;
+            let combinedData: unknown;
             if (stateResult !== undefined && stateResult !== null) {
                 combinedData = processor.applyResultPath(processedInput, stateResult, this.resultPath);
             } else {
@@ -74,10 +74,11 @@ export class PassState extends BaseState {
             const finalOutput = processor.applyOutputPath(combinedData, this.outputPath);
 
             return [finalOutput, this.nextState];
-        } catch (e: any) {
+        } catch (e: unknown) {
             // Wrap any processing error in StateError
+            const message = e instanceof Error ? e.message : String(e);
             throw new StateError(
-                `Failed to execute pass state '${this.name}': ${e.message || e}`,
+                `Failed to execute pass state '${this.name}': ${message}`,
                 this.name,
                 "States.Runtime"
             );
@@ -106,8 +107,8 @@ export class PassState extends BaseState {
         super.validate({...options, skipType: true});
     }
 
-    override toDict(): Record<string, any> {
-        const result: Record<string, any> = {
+    override toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = {
             Type: this.type,
         };
 

@@ -7,13 +7,13 @@ import JSONPathProcessor from "./json_path";
 
 export interface PathProcessor {
     /** Apply input path to filter input data. */
-    applyInputPath(inputData: any, path?: string): any;
+    applyInputPath(inputData: unknown, path?: string): unknown;
 
     /** Apply result path to combine input and result. */
-    applyResultPath(inputData: any, result: any, path?: string): any;
+    applyResultPath(inputData: unknown, result: unknown, path?: string): unknown;
 
     /** Apply output path to filter output data. */
-    applyOutputPath(output: any, path?: string): any;
+    applyOutputPath(output: unknown, path?: string): unknown;
 }
 
 export interface RetryRuleConfig {
@@ -62,8 +62,8 @@ export class RetryRule {
         }
     }
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = {
             ErrorEquals: this.errorEquals,
         };
 
@@ -105,8 +105,8 @@ export class CatchRule {
         }
     }
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = {
             ErrorEquals: this.errorEquals,
             Next: this.nextState,
         };
@@ -181,7 +181,7 @@ export abstract class BaseState {
         return [];
     }
 
-    protected _applyPaths(inputData: any, result: any, context?: Record<string, any>): any {
+    protected _applyPaths(inputData: unknown, result: unknown, context?: Record<string, unknown>): unknown {
         if (!context) context = {};
 
         const processor = this._pathProcessor || getPathProcessor();
@@ -196,12 +196,12 @@ export abstract class BaseState {
     }
 
     abstract execute(
-        inputData: any,
-        context?: Record<string, any>
-    ): Promise<[any, string | undefined]>;
+        inputData: unknown,
+        context?: Record<string, unknown>
+    ): Promise<[unknown, string | undefined]>;
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = {
             Type: this.type,
         };
 
