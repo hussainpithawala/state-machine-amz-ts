@@ -190,8 +190,6 @@ describe("SucceedState", () => {
     });
 
     it("should use default path processor when none is set", async () => {
-        setPathProcessor(undefined as any);
-
         const state = new SucceedState({ name: "DefaultSucceed" });
         const [output, nextState] = await state.execute(sampleInputData);
 

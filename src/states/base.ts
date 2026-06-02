@@ -3,17 +3,13 @@
  * Based on the Go implementation structure.
  */
 
-import JSONPathProcessor from "./json_path";
-
 export interface PathProcessor {
     /** Apply input path to filter input data. */
-    applyInputPath(inputData: unknown, path?: string): unknown;
-
+    applyInputPath(inputData: any, path?: string): any;
     /** Apply result path to combine input and result. */
-    applyResultPath(inputData: unknown, result: unknown, path?: string): unknown;
-
+    applyResultPath(inputData: any, result: any, path?: string): any;
     /** Apply output path to filter output data. */
-    applyOutputPath(output: unknown, path?: string): unknown;
+    applyOutputPath(output: any, path?: string): any;
 }
 
 export interface RetryRuleConfig {
@@ -62,8 +58,8 @@ export class RetryRule {
         }
     }
 
-    toDict(): Record<string, unknown> {
-        const result: Record<string, unknown> = {
+    toDict(): Record<string, any> {
+        const result: Record<string, any> = {
             ErrorEquals: this.errorEquals,
         };
 
@@ -105,8 +101,8 @@ export class CatchRule {
         }
     }
 
-    toDict(): Record<string, unknown> {
-        const result: Record<string, unknown> = {
+    toDict(): Record<string, any> {
+        const result: Record<string, any> = {
             ErrorEquals: this.errorEquals,
             Next: this.nextState,
         };
@@ -154,7 +150,7 @@ export abstract class BaseState {
     }
 
     validate(options?: ValidateOptions): void {
-        const {skipName = false, skipType = false, skipNextState = false} = options || {};
+        const { skipName = false, skipType = false, skipNextState = false } = options || {};
 
         if (!skipName && !this.name) {
             throw new Error("State name cannot be empty");
@@ -171,7 +167,6 @@ export abstract class BaseState {
         if (!skipNextState && this.nextState !== undefined && this.end) {
             throw new Error("State cannot have both Next and End");
         }
-
     }
 
     getNextStates(): string[] {
@@ -181,7 +176,7 @@ export abstract class BaseState {
         return [];
     }
 
-    protected _applyPaths(inputData: unknown, result: unknown, context?: Record<string, unknown>): unknown {
+    protected _applyPaths(inputData: any, result: any, context?: Record<string, any>): any {
         if (!context) context = {};
 
         const processor = this._pathProcessor || getPathProcessor();
@@ -196,12 +191,12 @@ export abstract class BaseState {
     }
 
     abstract execute(
-        inputData: unknown,
-        context?: Record<string, unknown>
-    ): Promise<[unknown, string | undefined]>;
+        inputData: any,
+        context?: Record<string, any>
+    ): Promise<[any, string | undefined]>;
 
-    toDict(): Record<string, unknown> {
-        const result: Record<string, unknown> = {
+    toDict(): Record<string, any> {
+        const result: Record<string, any> = {
             Type: this.type,
         };
 
@@ -232,11 +227,14 @@ export abstract class BaseState {
 // Global Path Processor Management
 // ==========================================
 
-let _defaultPathProcessor: PathProcessor | undefined;
+let _defaultPathProcessor: PathProcessor;
 
 export function getPathProcessor(): PathProcessor {
     if (!_defaultPathProcessor) {
-        // Lazily initialize with the real JSONPathProcessor
+        // Lazy import to avoid circular dependency with json_path.ts
+        // This mirrors the Python behavior: `from .json_path import JSONPathProcessor`
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { JSONPathProcessor } = require('./json_path');
         _defaultPathProcessor = new JSONPathProcessor();
     }
     return _defaultPathProcessor;
@@ -244,6 +242,22 @@ export function getPathProcessor(): PathProcessor {
 
 export function setPathProcessor(processor: PathProcessor): void {
     _defaultPathProcessor = processor;
+}
+
+/**
+ * Utility to temporarily use a different path processor (replaces Python's context manager).
+ */
+export async function withTemporaryPathProcessor<T>(
+    processor: PathProcessor,
+    fn: () => Promise<T> | T
+): Promise<T> {
+    const original = _defaultPathProcessor;
+    _defaultPathProcessor = processor;
+    try {
+        return await fn();
+    } finally {
+        _defaultPathProcessor = original;
+    }
 }
 
 // ==========================================
