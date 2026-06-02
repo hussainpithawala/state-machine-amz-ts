@@ -233,7 +233,6 @@ export function getPathProcessor(): PathProcessor {
     if (!_defaultPathProcessor) {
         // Lazy import to avoid circular dependency with json_path.ts
         // This mirrors the Python behavior: `from .json_path import JSONPathProcessor`
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { JSONPathProcessor } = require('./json_path');
         _defaultPathProcessor = new JSONPathProcessor();
     }

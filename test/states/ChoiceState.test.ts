@@ -2,7 +2,7 @@
  * Tests for the Choice state implementation.
  */
 
-import { ChoiceState, ChoiceRule, ChoiceStateConfig } from "./../../src/states/ChoiceState";
+import { ChoiceState, ChoiceRule } from "./../../src/states/ChoiceState";
 import {
     StateError,
     setPathProcessor,

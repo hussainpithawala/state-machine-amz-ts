@@ -324,7 +324,7 @@ describe("SucceedState", () => {
             { input: undefined, desc: "undefined" },
         ];
 
-        for (const { input, desc } of testCases) {
+        for (const { input, _desc } of testCases) {
             const [output, nextState] = await state.execute(input);
             expect(output).toBe(input); // Pass-through without paths
             expect(nextState).toBeUndefined();

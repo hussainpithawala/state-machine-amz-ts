@@ -90,7 +90,7 @@ export class ChoiceRule {
         this.comment = config.comment;
     }
 
-    toDict(): Record<string, any> {
+    toDict(): Record<string, never> {
         const result: Record<string, any> = {
             Variable: this.variable,
             Next: this.next,
@@ -174,7 +174,7 @@ export class ChoiceState extends BaseState {
         this.validate();
     }
 
-    override validate(options?: ValidateOptions): void {
+    override validate(_options?: ValidateOptions): void {
         // Validate basic fields
         if (!this.name) {
             throw new Error("State name cannot be empty");
@@ -283,7 +283,7 @@ export class ChoiceState extends BaseState {
     async execute(
         inputData: any,
         context?: Record<string, any>
-    ): Promise<[any, string | undefined]> {
+    ): Promise<[never, string | undefined]> {
         if (!context) context = {};
 
         try {
