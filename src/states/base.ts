@@ -30,9 +30,9 @@ export class RetryRule {
     constructor(config: RetryRuleConfig) {
         this.errorEquals = config.errorEquals;
         this.intervalSeconds = config.intervalSeconds ?? 1;
-        this.maxAttempts = config.maxAttempts;
+        this.maxAttempts = config.maxAttempts ?? 0;
         this.backoffRate = config.backoffRate ?? 2.0;
-        this.maxDelaySeconds = config.maxDelaySeconds;
+        this.maxDelaySeconds = config.maxDelaySeconds ?? 0;
         this.jitterStrategy = config.jitterStrategy ?? "full";
         this.validate();
     }
@@ -69,13 +69,13 @@ export class RetryRule {
 export interface CatchRuleConfig {
     errorEquals: string[];
     nextState: string;
-    resultPath?: string;
+    resultPath?: string | undefined;
 }
 
 export class CatchRule {
     errorEquals: string[];
     nextState: string;
-    resultPath?: string;
+    resultPath?: string | undefined;
 
     constructor(config: CatchRuleConfig) {
         this.errorEquals = config.errorEquals;

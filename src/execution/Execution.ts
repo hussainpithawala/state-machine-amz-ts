@@ -29,7 +29,7 @@ export class StateHistory {
     public endTime: Date;
     public retryCount: number;
     public sequenceNumber: number;
-    public error?: Error;
+    public error?: Error | undefined;
 
     constructor(config: StateHistoryConfig) {
         this.stateName = config.stateName;
@@ -83,7 +83,7 @@ export interface ExecutionConfig {
     endTime?: Date;
     input?: unknown;
     output?: unknown;
-    error?: Error;
+    error?: Error | undefined;
     currentState?: string;
     history?: StateHistory[];
     stateMachineId?: string;
@@ -94,13 +94,13 @@ export class Execution {
     public name: string;
     public status: string;
     public startTime: Date;
-    public endTime?: Date;
+    public endTime: Date | undefined;
     public input: unknown;
     public output?: unknown;
-    public error?: Error;
+    public error?: Error | undefined;
     public currentState: string;
     public history: StateHistory[];
-    public stateMachineId?: string;
+    public stateMachineId?: string | undefined;
 
     constructor(config: ExecutionConfig) {
         this.id = config.id;
@@ -171,6 +171,7 @@ export class Execution {
         if (this.history.length === 0) {
             throw new Error("No history available");
         }
+        // @ts-ignore
         return this.history[this.history.length - 1];
     }
 

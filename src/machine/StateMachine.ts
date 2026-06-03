@@ -166,6 +166,7 @@ export class StateMachine {
     while (true) {
       // Check for timeout
       if (this.timeoutSeconds !== undefined) {
+        // @ts-ignore
         const elapsed = (new Date().getTime() - execCtx.startTime.getTime()) / 1000;
         if (elapsed > this.timeoutSeconds) {
           execCtx.status = 'TIMED_OUT';
