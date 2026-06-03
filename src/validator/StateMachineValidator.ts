@@ -74,7 +74,7 @@ export class StateMachineValidator {
         const terminalTypes = new Set(["Fail", "Succeed"]);
 
         if (!terminalTypes.has(state.stateType)) {
-            if (!state.isEnd() && state.getNext() === undefined) {
+            if (!state.isEnd() && state.getNext() === undefined  && !["Choice"].includes(state.type)) {
                 throw new Error(`State '${stateName}' must have either Next or End set`);
             }
 

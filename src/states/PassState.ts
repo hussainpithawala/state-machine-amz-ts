@@ -56,8 +56,8 @@ export class PassState extends BaseState {
             if (this.result !== undefined && this.result !== null) {
                 stateResult = this.result;
             } else if (this.parameters !== undefined && this.parameters !== null) {
-                // Parameters would be processed here (simplified for now)
-                stateResult = this.parameters;
+                // 👇 EXPAND PARAMETERS using JSONPath (CRITICAL for ASL compliance)
+                stateResult = this.expandValue(this.parameters, { $: processedInput }, processor);
             } else {
                 stateResult = undefined;
             }

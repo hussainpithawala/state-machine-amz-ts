@@ -135,6 +135,28 @@ export abstract class BaseState {
         return this.nextState !== undefined ? [this.nextState] : [];
     }
 
+    /**
+     * Recursively expand a template object/array using JSONPath against a context.
+     * Used for evaluating Parameters and ResultSelector fields.
+     */
+    protected expandValue(template: unknown, context: Record<string, unknown>, processor: PathProcessor): unknown {
+        if (typeof template === "string" && template.startsWith("$")) {
+            const data = context["$"];
+            return processor.applyInputPath(data, template);
+        }
+        if (Array.isArray(template)) {
+            return template.map((item) => this.expandValue(item, context, processor));
+        }
+        if (typeof template === "object" && template !== null) {
+            const result: Record<string, unknown> = {};
+            for (const [key, value] of Object.entries(template)) {
+                result[key] = this.expandValue(value, context, processor);
+            }
+            return result;
+        }
+        return template;
+    }
+
     protected _applyPaths(inputData: unknown, result: unknown, context?: Record<string, unknown>): unknown {
         if (!context) context = {};
         const processor = this._pathProcessor || getPathProcessor();
