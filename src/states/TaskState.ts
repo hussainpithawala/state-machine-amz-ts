@@ -145,15 +145,22 @@ export class TaskState extends BaseState {
         }
     }
 
-    private prepareInput(inputData: unknown): { processor: PathProcessor; taskInput: unknown; processedInput: unknown } {
+    private prepareInput(inputData: unknown): {
+        processor: PathProcessor;
+        taskInput: unknown;
+        processedInput: unknown;
+    } {
         const processor = this._pathProcessor || getPathProcessor();
         const processedInput = processor.applyInputPath(inputData, this.inputPath);
+
         let taskInput = processedInput;
         if (this.parameters !== undefined) {
-            taskInput = this.expandValue(this.parameters, { $: processedInput });
+            taskInput = this.expandValue(this.parameters, { $: processedInput }, processor); // 👈 Pass processor
         }
+
         return { processor, taskInput, processedInput };
     }
+
 
     private getTaskHandler(): TaskHandler {
         return this.taskHandler || new DefaultTaskHandler();
@@ -231,10 +238,20 @@ export class TaskState extends BaseState {
         return [processor.applyResultPath(processedInput, errorResult, catchPolicy.resultPath), catchPolicy.nextState];
     }
 
-    private processSuccessfulResult(processor: PathProcessor, processedInput: unknown, result: unknown): [unknown, string | undefined] {
-        let output = this.resultSelector !== undefined ? this.expandValue(this.resultSelector, { $: result }) : result;
+    private processSuccessfulResult(
+        processor: PathProcessor,
+        processedInput: unknown,
+        result: unknown
+    ): [unknown, string | undefined] {
+        let output = result;
+
+        if (this.resultSelector !== undefined) {
+            output = this.expandValue(this.resultSelector, { $: result }, processor); // 👈 Pass processor
+        }
+
         output = processor.applyResultPath(processedInput, output, this.resultPath);
         output = processor.applyOutputPath(output, this.outputPath);
+
         return [output, this.nextState];
     }
 
@@ -244,26 +261,23 @@ export class TaskState extends BaseState {
         return errorPatterns.some(pattern => pattern === "States.ALL" || pattern === errorMsg || pattern === errorType || errorMsg.includes(pattern));
     }
 
-    private expandValue(template: unknown, context: Record<string, unknown>): unknown {
-        if (typeof template === "string" && template.startsWith("$.")) return this.extractValue(template, context);
-        if (Array.isArray(template)) return template.map(item => this.expandValue(item, context));
+    private expandValue(template: unknown, context: Record<string, unknown>, processor: PathProcessor): unknown {
+        // If it's a string starting with "$", evaluate it as a JSONPath against the context data
+        if (typeof template === "string" && template.startsWith("$")) {
+            const data = context["$"];
+            return processor.applyInputPath(data, template);
+        }
+        if (Array.isArray(template)) {
+            return template.map((item) => this.expandValue(item, context, processor));
+        }
         if (typeof template === "object" && template !== null) {
             const result: Record<string, unknown> = {};
-            for (const [key, value] of Object.entries(template)) result[key] = this.expandValue(value, context);
+            for (const [key, value] of Object.entries(template)) {
+                result[key] = this.expandValue(value, context, processor);
+            }
             return result;
         }
         return template;
-    }
-
-    private extractValue(path: string, context: Record<string, unknown>): unknown {
-        if (path === "$") return context["$"];
-        const parts = path.replace(/^\$\./, "").split(".");
-        let current: unknown = context["$"];
-        for (const part of parts) {
-            if (current === null || current === undefined || typeof current !== "object") return undefined;
-            current = (current as Record<string, unknown>)[part];
-        }
-        return current;
     }
 
     override getNextStates(): string[] {
