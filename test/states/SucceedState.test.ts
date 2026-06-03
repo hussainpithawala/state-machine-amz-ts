@@ -2,20 +2,18 @@
  * Tests for the SucceedState implementation.
  */
 
-import { SucceedState, SucceedStateConfig } from "./../../src/states/SucceedState";
-import { StateError, setPathProcessor, PathProcessor } from "./../../src/states/base";
-import {JSONPathProcessor} from "./../../src/states";
+import {SucceedState, SucceedStateConfig} from "./../../src/states/SucceedState";
+import {StateError, PathProcessor} from "./../../src/states/base";
 
 describe("SucceedState", () => {
     const sampleInputData = {
         data: "input data",
-        metadata: { source: "test", timestamp: "2024-01-15" },
+        metadata: {source: "test", timestamp: "2024-01-15"},
         count: 42,
     };
 
     beforeEach(() => {
         // Ensure we always start with the real JSONPathProcessor
-        setPathProcessor(new JSONPathProcessor());
     });
 
     afterEach(() => {
@@ -45,7 +43,7 @@ describe("SucceedState", () => {
     });
 
     it("should create a SucceedState with default values", () => {
-        const state = new SucceedState({ name: "SimpleSucceed" });
+        const state = new SucceedState({name: "SimpleSucceed"});
 
         expect(state.name).toBe("SimpleSucceed");
         expect(state.type).toBe("Succeed");
@@ -62,40 +60,40 @@ describe("SucceedState", () => {
     // ==========================================
 
     it.each([
-        { name: "ValidSucceed" },
-        { name: "ValidSucceed", inputPath: "$.data" },
-        { name: "ValidSucceed", outputPath: "$.result" },
-        { name: "ValidSucceed", inputPath: "$.data", outputPath: "$.result" },
-        { name: "ValidSucceed", comment: "Test" },
+        {name: "ValidSucceed"},
+        {name: "ValidSucceed", inputPath: "$.data"},
+        {name: "ValidSucceed", outputPath: "$.result"},
+        {name: "ValidSucceed", inputPath: "$.data", outputPath: "$.result"},
+        {name: "ValidSucceed", comment: "Test"},
     ])("should validate valid SucceedState configurations: %p", (config) => {
         expect(() => new SucceedState(config as SucceedStateConfig)).not.toThrow();
     });
 
     it("should throw validation error with empty name", () => {
-        expect(() => new SucceedState({ name: "" })).toThrow("State name cannot be empty");
+        expect(() => new SucceedState({name: ""})).toThrow("State name cannot be empty");
     });
 
     it("should throw validation error with wrong type", () => {
-        const state = new SucceedState({ name: "WrongType" });
+        const state = new SucceedState({name: "WrongType"});
         (state as any).type = "Pass"; // Bypass TS checks to simulate mutation
 
         expect(() => state.validate()).toThrow("must have Type 'Succeed'");
     });
 
     it("should throw validation error with Next field", () => {
-        expect(() => new SucceedState({ name: "InvalidSucceed", nextState: "NextState" })).toThrow(
+        expect(() => new SucceedState({name: "InvalidSucceed", nextState: "NextState"})).toThrow(
             "cannot have Next field"
         );
     });
 
     it("should throw validation error with End field", () => {
-        expect(() => new SucceedState({ name: "InvalidSucceed", end: true })).toThrow(
+        expect(() => new SucceedState({name: "InvalidSucceed", end: true})).toThrow(
             "cannot have End field"
         );
     });
 
     it("should throw validation error with ResultPath", () => {
-        expect(() => new SucceedState({ name: "InvalidSucceed", resultPath: "$.result" })).toThrow(
+        expect(() => new SucceedState({name: "InvalidSucceed", resultPath: "$.result"})).toThrow(
             "cannot have ResultPath"
         );
     });
@@ -105,7 +103,7 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should execute simple SucceedState (pass-through)", async () => {
-        const state = new SucceedState({ name: "SimpleSucceed" });
+        const state = new SucceedState({name: "SimpleSucceed"});
         const [output, nextState] = await state.execute(sampleInputData);
 
         expect(output).toEqual(sampleInputData);
@@ -150,8 +148,8 @@ describe("SucceedState", () => {
     });
 
     it("should execute SucceedState with context", async () => {
-        const state = new SucceedState({ name: "ContextSucceed" });
-        const context = { execution_id: "test-123", timestamp: "2024-01-15" };
+        const state = new SucceedState({name: "ContextSucceed"});
+        const context = {execution_id: "test-123", timestamp: "2024-01-15"};
 
         const [output, nextState] = await state.execute(sampleInputData, context);
 
@@ -172,7 +170,7 @@ describe("SucceedState", () => {
             },
         };
 
-        const state = new SucceedState({ name: "ErrorSucceed" });
+        const state = new SucceedState({name: "ErrorSucceed"});
         state.setPathProcessor(badProcessor);
 
         await expect(state.execute(sampleInputData)).rejects.toThrow(StateError);
@@ -182,7 +180,7 @@ describe("SucceedState", () => {
     });
 
     it("should execute SucceedState with null input", async () => {
-        const state = new SucceedState({ name: "NilSucceed" });
+        const state = new SucceedState({name: "NilSucceed"});
         const [output, nextState] = await state.execute(null);
 
         expect(output).toBeNull();
@@ -190,14 +188,11 @@ describe("SucceedState", () => {
     });
 
     it("should use default path processor when none is set", async () => {
-        const state = new SucceedState({ name: "DefaultSucceed" });
+        const state = new SucceedState({name: "DefaultSucceed"});
         const [output, nextState] = await state.execute(sampleInputData);
 
         expect(output).toEqual(sampleInputData);
         expect(nextState).toBeUndefined();
-
-        // Restore
-        setPathProcessor(new JSONPathProcessor());
     });
 
     // ==========================================
@@ -205,18 +200,18 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should convert simple SucceedState to dict", () => {
-        const state = new SucceedState({ name: "SimpleSucceed" });
-        expect(state.toDict()).toEqual({ Type: "Succeed" });
+        const state = new SucceedState({name: "SimpleSucceed"});
+        expect(state.toDict()).toEqual({Type: "Succeed"});
     });
 
     it("should convert state with input path to dict", () => {
-        const state = new SucceedState({ name: "InputSucceed", inputPath: "$.input" });
-        expect(state.toDict()).toEqual({ Type: "Succeed", InputPath: "$.input" });
+        const state = new SucceedState({name: "InputSucceed", inputPath: "$.input"});
+        expect(state.toDict()).toEqual({Type: "Succeed", InputPath: "$.input"});
     });
 
     it("should convert state with output path to dict", () => {
-        const state = new SucceedState({ name: "OutputSucceed", outputPath: "$.output" });
-        expect(state.toDict()).toEqual({ Type: "Succeed", OutputPath: "$.output" });
+        const state = new SucceedState({name: "OutputSucceed", outputPath: "$.output"});
+        expect(state.toDict()).toEqual({Type: "Succeed", OutputPath: "$.output"});
     });
 
     it("should convert complete state to dict", () => {
@@ -256,16 +251,16 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should convert state to JSON string", () => {
-        const state = new SucceedState({ name: "JsonSucceed", inputPath: "$.input" });
+        const state = new SucceedState({name: "JsonSucceed", inputPath: "$.input"});
 
         const jsonStr = state.toJson();
         const result = JSON.parse(jsonStr);
 
-        expect(result).toEqual({ Type: "Succeed", InputPath: "$.input" });
+        expect(result).toEqual({Type: "Succeed", InputPath: "$.input"});
     });
 
     it("should convert state to indented JSON string", () => {
-        const state = new SucceedState({ name: "IndentedSucceed", inputPath: "$.input" });
+        const state = new SucceedState({name: "IndentedSucceed", inputPath: "$.input"});
         const jsonStr = state.toJson(2);
         expect(jsonStr).toContain("\n  ");
     });
@@ -275,7 +270,7 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should return empty array for getNextStates (always terminal)", () => {
-        const state = new SucceedState({ name: "TerminalSucceed" });
+        const state = new SucceedState({name: "TerminalSucceed"});
         expect(state.getNextStates()).toEqual([]);
     });
 
@@ -293,7 +288,7 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should have correct string representation", () => {
-        const state = new SucceedState({ name: "TestSucceed" });
+        const state = new SucceedState({name: "TestSucceed"});
         expect(state.toString()).toBe("SucceedState(name=TestSucceed)");
     });
 
@@ -302,7 +297,7 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should execute with empty input", async () => {
-        const state = new SucceedState({ name: "EmptySucceed" });
+        const state = new SucceedState({name: "EmptySucceed"});
         const emptyInput = {};
         const [output, nextState] = await state.execute(emptyInput);
 
@@ -311,20 +306,20 @@ describe("SucceedState", () => {
     });
 
     it("should execute with different input types", async () => {
-        const state = new SucceedState({ name: "TypeTestSucceed" });
+        const state = new SucceedState({name: "TypeTestSucceed"});
 
         const testCases = [
-            { input: "string input", desc: "string" },
-            { input: 42, desc: "integer" },
-            { input: 3.14, desc: "float" },
-            { input: true, desc: "boolean" },
-            { input: [1, 2, 3], desc: "list" },
-            { input: { key: "value" }, desc: "dict" },
-            { input: null, desc: "null" },
-            { input: undefined, desc: "undefined" },
+            {input: "string input", desc: "string"},
+            {input: 42, desc: "integer"},
+            {input: 3.14, desc: "float"},
+            {input: true, desc: "boolean"},
+            {input: [1, 2, 3], desc: "list"},
+            {input: {key: "value"}, desc: "dict"},
+            {input: null, desc: "null"},
+            {input: undefined, desc: "undefined"},
         ];
 
-        for (const { input, _desc } of testCases) {
+        for (const {input} of testCases) {
             const [output, nextState] = await state.execute(input);
             expect(output).toBe(input); // Pass-through without paths
             expect(nextState).toBeUndefined();
@@ -336,7 +331,7 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should properly inherit from BaseState", () => {
-        const state = new SucceedState({ name: "InheritanceTest" });
+        const state = new SucceedState({name: "InheritanceTest"});
 
         expect(typeof state.execute).toBe("function");
         expect(typeof state.validate).toBe("function");
@@ -352,7 +347,7 @@ describe("SucceedState", () => {
     });
 
     it("should behave as terminal state (no next, not end flag)", () => {
-        const state = new SucceedState({ name: "TerminalBehavior" });
+        const state = new SucceedState({name: "TerminalBehavior"});
 
         // Succeed states are implicitly terminal
         expect(state.getNext()).toBeUndefined();
@@ -365,13 +360,13 @@ describe("SucceedState", () => {
     // ==========================================
 
     it("should handle concurrent execution", async () => {
-        const state = new SucceedState({ name: "ConcurrentSucceed" });
+        const state = new SucceedState({name: "ConcurrentSucceed"});
 
         const numTasks = 10;
         const tasks = [];
 
         for (let i = 0; i < numTasks; i++) {
-            const inputData = { id: i, data: `task_${i}` };
+            const inputData = {id: i, data: `task_${i}`};
             tasks.push(state.execute(inputData));
         }
 

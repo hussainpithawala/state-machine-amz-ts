@@ -13,7 +13,7 @@ import {
     PathProcessor
 } from "./../../src/states/base";
 
-import JSONPathProcessor from "./../../src/states/json_path";
+import {JSONPathProcessor} from "./../../src/states/json_path";
 
 describe("PassState", () => {
     const sampleInputData = {

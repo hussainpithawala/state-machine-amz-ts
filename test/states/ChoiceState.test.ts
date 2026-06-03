@@ -7,7 +7,7 @@ import {
     StateError,
     setPathProcessor,
 } from "./../../src/states/base";
-import {JSONPathProcessor} from "./../../src/states";
+import {JSONPathProcessor} from "./../../src/states/json_path";
 
 describe("ChoiceRule", () => {
     it("should create a basic ChoiceRule", () => {

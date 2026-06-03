@@ -38,7 +38,7 @@
     "build": "tsup --clean",
     "build:watch": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "test:unit": "jest --testPathPattern='crc-tlv'",
     "test:coverage": "jest --coverage",
     "lint": "eslint src test --ext .ts --max-warnings 0",

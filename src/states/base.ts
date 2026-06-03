@@ -2,14 +2,12 @@
  * Base state classes for Amazon States Language implementation.
  * Based on the Go implementation structure.
  */
+import { JSONPathProcessor } from './json_path'; // Safe direct import due to 'import type' in json_path.ts
 
 export interface PathProcessor {
-    /** Apply input path to filter input data. */
-    applyInputPath(inputData: any, path?: string): any;
-    /** Apply result path to combine input and result. */
-    applyResultPath(inputData: any, result: any, path?: string): any;
-    /** Apply output path to filter output data. */
-    applyOutputPath(output: any, path?: string): any;
+    applyInputPath(inputData: unknown, path?: string): unknown;
+    applyResultPath(inputData: unknown, result: unknown, path?: string): unknown;
+    applyOutputPath(output: unknown, path?: string): unknown;
 }
 
 export interface RetryRuleConfig {
@@ -27,16 +25,15 @@ export class RetryRule {
     maxAttempts?: number;
     backoffRate: number;
     maxDelaySeconds?: number;
-    jitterStrategy?: string | undefined;
+    jitterStrategy?: string;
 
     constructor(config: RetryRuleConfig) {
         this.errorEquals = config.errorEquals;
         this.intervalSeconds = config.intervalSeconds ?? 1;
-        this.maxAttempts = config.maxAttempts ?? 0;
+        this.maxAttempts = config.maxAttempts;
         this.backoffRate = config.backoffRate ?? 2.0;
-        this.maxDelaySeconds = config.maxDelaySeconds ?? 0;
-        this.jitterStrategy = config.jitterStrategy ? "full" : undefined;
-
+        this.maxDelaySeconds = config.maxDelaySeconds;
+        this.jitterStrategy = config.jitterStrategy ?? "full";
         this.validate();
     }
 
@@ -58,17 +55,13 @@ export class RetryRule {
         }
     }
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
-            ErrorEquals: this.errorEquals,
-        };
-
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = { ErrorEquals: this.errorEquals };
         if (this.intervalSeconds !== 1) result.IntervalSeconds = this.intervalSeconds;
         if (this.maxAttempts !== undefined) result.MaxAttempts = this.maxAttempts;
         if (this.backoffRate !== 2.0) result.BackoffRate = this.backoffRate;
         if (this.maxDelaySeconds !== undefined) result.MaxDelaySeconds = this.maxDelaySeconds;
         if (this.jitterStrategy !== undefined) result.JitterStrategy = this.jitterStrategy;
-
         return result;
     }
 }
@@ -82,13 +75,12 @@ export interface CatchRuleConfig {
 export class CatchRule {
     errorEquals: string[];
     nextState: string;
-    resultPath?: string | undefined;
+    resultPath?: string;
 
     constructor(config: CatchRuleConfig) {
         this.errorEquals = config.errorEquals;
         this.nextState = config.nextState;
         this.resultPath = config.resultPath;
-
         this.validate();
     }
 
@@ -101,16 +93,9 @@ export class CatchRule {
         }
     }
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
-            ErrorEquals: this.errorEquals,
-            Next: this.nextState,
-        };
-
-        if (this.resultPath !== undefined) {
-            result.ResultPath = this.resultPath;
-        }
-
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = { ErrorEquals: this.errorEquals, Next: this.nextState };
+        if (this.resultPath !== undefined) result.ResultPath = this.resultPath;
         return result;
     }
 }
@@ -122,91 +107,54 @@ export interface ValidateOptions {
 }
 
 export abstract class BaseState {
-    name!: string; // Set by subclasses
-    type!: string; // Defined by subclasses
-    nextState?: string | undefined;
+    name!: string;
+    type!: string;
+    nextState?: string;
     end: boolean = false;
-    inputPath?: string | undefined;
-    resultPath?: string | undefined;
-    outputPath?: string | undefined;
-    comment?: string | undefined;
+    inputPath?: string;
+    resultPath?: string;
+    outputPath?: string;
+    comment?: string;
 
     protected _pathProcessor?: PathProcessor;
 
-    get stateName(): string {
-        return this.name;
-    }
-
-    get stateType(): string {
-        return this.type;
-    }
-
-    getNext(): string | undefined {
-        return this.nextState;
-    }
-
-    isEnd(): boolean {
-        return this.end;
-    }
+    get stateName(): string { return this.name; }
+    get stateType(): string { return this.type; }
+    getNext(): string | undefined { return this.nextState; }
+    isEnd(): boolean { return this.end; }
 
     validate(options?: ValidateOptions): void {
         const { skipName = false, skipType = false, skipNextState = false } = options || {};
-
-        if (!skipName && !this.name) {
-            throw new Error("State name cannot be empty");
-        }
-
-        if (!skipType && !this.type) {
-            throw new Error("State type cannot be empty");
-        }
-
-        if (!skipNextState && this.nextState === undefined && !this.end) {
-            throw new Error("State must have either Next or End");
-        }
-
-        if (!skipNextState && this.nextState !== undefined && this.end) {
-            throw new Error("State cannot have both Next and End");
-        }
+        if (!skipName && !this.name) throw new Error("State name cannot be empty");
+        if (!skipType && !this.type) throw new Error("State type cannot be empty");
+        if (!skipNextState && this.nextState === undefined && !this.end) throw new Error("State must have either Next or End");
+        if (!skipNextState && this.nextState !== undefined && this.end) throw new Error("State cannot have both Next and End");
     }
 
     getNextStates(): string[] {
-        if (this.nextState !== undefined) {
-            return [this.nextState];
-        }
-        return [];
+        return this.nextState !== undefined ? [this.nextState] : [];
     }
 
-    protected _applyPaths(inputData: any, result: any, context?: Record<string, any>): any {
+    protected _applyPaths(inputData: unknown, result: unknown, context?: Record<string, unknown>): unknown {
         if (!context) context = {};
-
         const processor = this._pathProcessor || getPathProcessor();
         const currentData = processor.applyInputPath(inputData, this.inputPath);
-
-        let processedData = currentData;
-        if (result !== undefined && result !== null) {
-            processedData = processor.applyResultPath(currentData, result, this.resultPath);
-        }
-
+        const processedData = result !== undefined && result !== null
+            ? processor.applyResultPath(currentData, result, this.resultPath)
+            : currentData;
         return processor.applyOutputPath(processedData, this.outputPath);
     }
 
-    abstract execute(
-        inputData: any,
-        context?: Record<string, any>
-    ): Promise<[any, string | undefined]>;
+    abstract execute(inputData: unknown, context?: Record<string, unknown>): Promise<[unknown, string | undefined]>;
 
-    toDict(): Record<string, any> {
-        const result: Record<string, any> = {
-            Type: this.type,
-        };
-
+    toDict(): Record<string, unknown> {
+        const result: Record<string, unknown> = { Type: this.type };
         if (this.nextState !== undefined) result.Next = this.nextState;
         if (this.end) result.End = this.end;
         if (this.inputPath !== undefined) result.InputPath = this.inputPath;
         if (this.resultPath !== undefined) result.ResultPath = this.resultPath;
         if (this.outputPath !== undefined) result.OutputPath = this.outputPath;
         if (this.comment !== undefined) result.Comment = this.comment;
-
         return result;
     }
 
@@ -227,15 +175,10 @@ export abstract class BaseState {
 // Global Path Processor Management
 // ==========================================
 
-let _defaultPathProcessor: PathProcessor;
+// Single, default implementation instantiated immediately
+let _defaultPathProcessor: PathProcessor = new JSONPathProcessor();
 
 export function getPathProcessor(): PathProcessor {
-    if (!_defaultPathProcessor) {
-        // Lazy import to avoid circular dependency with json_path.ts
-        // This mirrors the Python behavior: `from .json_path import JSONPathProcessor`
-        const { JSONPathProcessor } = require('./json_path');
-        _defaultPathProcessor = new JSONPathProcessor();
-    }
     return _defaultPathProcessor;
 }
 
@@ -243,9 +186,6 @@ export function setPathProcessor(processor: PathProcessor): void {
     _defaultPathProcessor = processor;
 }
 
-/**
- * Utility to temporarily use a different path processor (replaces Python's context manager).
- */
 export async function withTemporaryPathProcessor<T>(
     processor: PathProcessor,
     fn: () => Promise<T> | T
