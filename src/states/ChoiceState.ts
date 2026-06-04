@@ -388,96 +388,54 @@ export class ChoiceState extends BaseState {
         }
         return false;
     }
-
     private evaluateComparison(rule: ChoiceRule, variableValue: any): boolean {
         // Define comparison configurations
         const comparisons: Array<{
             attr: string;
             handler: (val: any, expected: any) => boolean;
         }> = [
-            {
-                attr: "stringEquals",
-                handler: (val, exp) => this.compareString(val, exp, (a, b) => a === b),
-            },
-            {
-                attr: "stringLessThan",
-                handler: (val, exp) => this.compareString(val, exp, (a, b) => a < b),
-            },
-            {
-                attr: "stringGreaterThan",
-                handler: (val, exp) => this.compareString(val, exp, (a, b) => a > b),
-            },
-            {
-                attr: "stringLessThanEquals",
-                handler: (val, exp) => this.compareString(val, exp, (a, b) => a <= b),
-            },
-            {
-                attr: "stringGreaterThanEquals",
-                handler: (val, exp) => this.compareString(val, exp, (a, b) => a >= b),
-            },
-            {
-                attr: "numericEquals",
-                handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a === b),
-            },
-            {
-                attr: "numericLessThan",
-                handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a < b),
-            },
-            {
-                attr: "numericGreaterThan",
-                handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a > b),
-            },
-            {
-                attr: "numericLessThanEquals",
-                handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a <= b),
-            },
-            {
-                attr: "numericGreaterThanEquals",
-                handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a >= b),
-            },
-            {
-                attr: "booleanEquals",
-                handler: (val, exp) => this.compareBoolean(val, exp),
-            },
-            {
-                attr: "timestampEquals",
-                handler: (val, exp) =>
-                    this.compareTimestamp(val, exp, (a, b) => a.getTime() === b.getTime()),
-            },
-            {
-                attr: "timestampLessThan",
-                handler: (val, exp) =>
-                    this.compareTimestamp(val, exp, (a, b) => a.getTime() < b.getTime()),
-            },
-            {
-                attr: "timestampGreaterThan",
-                handler: (val, exp) =>
-                    this.compareTimestamp(val, exp, (a, b) => a.getTime() > b.getTime()),
-            },
-            {
-                attr: "timestampLessThanEquals",
-                handler: (val, exp) =>
-                    this.compareTimestamp(val, exp, (a, b) => a.getTime() <= b.getTime()),
-            },
-            {
-                attr: "timestampGreaterThanEquals",
-                handler: (val, exp) =>
-                    this.compareTimestamp(val, exp, (a, b) => a.getTime() >= b.getTime()),
-            },
+            { attr: "stringEquals", handler: (val, exp) => this.compareString(val, exp, (a, b) => a === b) },
+            { attr: "stringLessThan", handler: (val, exp) => this.compareString(val, exp, (a, b) => a < b) },
+            { attr: "stringGreaterThan", handler: (val, exp) => this.compareString(val, exp, (a, b) => a > b) },
+            { attr: "stringLessThanEquals", handler: (val, exp) => this.compareString(val, exp, (a, b) => a <= b) },
+            { attr: "stringGreaterThanEquals", handler: (val, exp) => this.compareString(val, exp, (a, b) => a >= b) },
+            { attr: "numericEquals", handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a === b) },
+            { attr: "numericLessThan", handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a < b) },
+            { attr: "numericGreaterThan", handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a > b) },
+            { attr: "numericLessThanEquals", handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a <= b) },
+            { attr: "numericGreaterThanEquals", handler: (val, exp) => this.compareNumeric(val, exp, (a, b) => a >= b) },
+            { attr: "booleanEquals", handler: (val, exp) => this.compareBoolean(val, exp) },
+            { attr: "timestampEquals", handler: (val, exp) => this.compareTimestamp(val, exp, (a, b) => a.getTime() === b.getTime()) },
+            { attr: "timestampLessThan", handler: (val, exp) => this.compareTimestamp(val, exp, (a, b) => a.getTime() < b.getTime()) },
+            { attr: "timestampGreaterThan", handler: (val, exp) => this.compareTimestamp(val, exp, (a, b) => a.getTime() > b.getTime()) },
+            { attr: "timestampLessThanEquals", handler: (val, exp) => this.compareTimestamp(val, exp, (a, b) => a.getTime() <= b.getTime()) },
+            { attr: "timestampGreaterThanEquals", handler: (val, exp) => this.compareTimestamp(val, exp, (a, b) => a.getTime() >= b.getTime()) },
         ];
 
+        let operatorFound = false;
+
+        // ASL Spec: If multiple comparators are present in a single rule, they are implicitly ANDed.
+        // ALL conditions must evaluate to true for the rule to match.
         for (const { attr, handler } of comparisons) {
             const expected = (rule as any)[attr];
             if (expected !== undefined) {
-                return handler(variableValue, expected);
+                operatorFound = true;
+                if (!handler(variableValue, expected)) {
+                    return false; // If any condition fails, the entire rule fails
+                }
             }
         }
 
-        throw new StateError(
-            "no comparison operator specified in choice rule",
-            this.name
-        );
+        if (!operatorFound) {
+            throw new StateError(
+                "no comparison operator specified in choice rule",
+                this.name
+            );
+        }
+
+        return true; // All defined conditions passed
     }
+
 
     private compareString(
         variableValue: any,
