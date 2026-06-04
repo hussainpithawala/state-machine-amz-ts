@@ -1,5 +1,5 @@
 {
-  "name": "@hussainpithawala/state-machine-amz",
+  "name": "@hussainpithawala/state-machine-amz-ts",
   "version": "0.0.1",
   "description": "AWS Step Functions compatible embedded workflow engine for TypeScript/Node.js",
   "keywords": [
