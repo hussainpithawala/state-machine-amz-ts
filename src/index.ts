@@ -1,9 +1,8 @@
 // Core engine
-export { StateMachine, PersistentStateMachine } from './machine'
-export { Executor } from './executor'
+export { StateMachine } from "./machine";
+export { Executor } from "./executor";
 
 // Repositories
-export { InMemoryRepository } from './repository'
 
 // Types
 export type {
@@ -15,7 +14,7 @@ export type {
   StateDefinition,
   StateType,
   TaskHandler,
-} from './types'
+} from "./types";
 
 // Errors
 export {
@@ -25,4 +24,4 @@ export {
   ExecutionTimeoutError,
   InvalidDefinitionError,
   PersistenceError,
-} from './errors'
+} from "./errors";

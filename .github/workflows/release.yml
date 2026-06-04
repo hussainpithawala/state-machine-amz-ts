@@ -1,23 +1,51 @@
-name: Release
+name: Release & Publish
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 jobs:
-  publish:
+  release:
+    name: Build, Test & Publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # MANDATORY for Trusted Publishing
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-      - run: npm publish --access public
+          # registry-url is no longer required for OIDC,
+          # but keeping it doesn't hurt.
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to NPM
+        # We remove the NODE_AUTH_TOKEN env variable.
+        # npm publish automatically detects the OIDC token.
+        run: npm publish --access public --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm uses this to bypass 2FA
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}

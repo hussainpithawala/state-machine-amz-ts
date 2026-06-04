@@ -1,2 +1,1 @@
-export { StateMachine } from './StateMachine'
-export { PersistentStateMachine } from './PersistentStateMachine'
+export { StateMachine } from "./StateMachine";
