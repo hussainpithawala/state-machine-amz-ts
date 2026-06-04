@@ -64,7 +64,10 @@ describe("WaitState", () => {
       end: true,
     });
 
-    const [output] = await state.execute({ targetTime: futureTime, data: "test" });
+    const [output] = await state.execute({
+      targetTime: futureTime,
+      data: "test",
+    });
     const duration = Date.now() - start;
 
     expect(duration).toBeGreaterThanOrEqual(400);
@@ -80,40 +83,59 @@ describe("WaitState", () => {
       end: true,
     });
 
-    const [output] = await state.execute({ payload: { value: "extracted" }, other: "ignored" });
+    const [output] = await state.execute({
+      payload: { value: "extracted" },
+      other: "ignored",
+    });
     expect(output).toBe("extracted");
   });
 
   it("should throw if multiple time fields are provided", () => {
-    expect(() => new WaitState({
-      name: "InvalidWait",
-      seconds: 10,
-      timestamp: "2024-01-01T00:00:00Z",
-      end: true,
-    })).toThrow("must contain exactly one of Seconds, SecondsPath, Timestamp, or TimestampPath");
+    expect(
+      () =>
+        new WaitState({
+          name: "InvalidWait",
+          seconds: 10,
+          timestamp: "2024-01-01T00:00:00Z",
+          end: true,
+        }),
+    ).toThrow(
+      "must contain exactly one of Seconds, SecondsPath, Timestamp, or TimestampPath",
+    );
   });
 
   it("should throw if no time field is provided", () => {
-    expect(() => new WaitState({
-      name: "InvalidWait",
-      end: true,
-    })).toThrow("must contain exactly one of Seconds, SecondsPath, Timestamp, or TimestampPath");
+    expect(
+      () =>
+        new WaitState({
+          name: "InvalidWait",
+          end: true,
+        }),
+    ).toThrow(
+      "must contain exactly one of Seconds, SecondsPath, Timestamp, or TimestampPath",
+    );
   });
 
   it("should throw if Seconds is negative", () => {
-    expect(() => new WaitState({
-      name: "InvalidWait",
-      seconds: -5,
-      end: true,
-    })).toThrow("Seconds must be a non-negative integer");
+    expect(
+      () =>
+        new WaitState({
+          name: "InvalidWait",
+          seconds: -5,
+          end: true,
+        }),
+    ).toThrow("Seconds must be a non-negative integer");
   });
 
   it("should throw if Seconds is not an integer", () => {
-    expect(() => new WaitState({
-      name: "InvalidWait",
-      seconds: 0.5,
-      end: true,
-    })).toThrow("Seconds must be a non-negative integer");
+    expect(
+      () =>
+        new WaitState({
+          name: "InvalidWait",
+          seconds: 0.5,
+          end: true,
+        }),
+    ).toThrow("Seconds must be a non-negative integer");
   });
 
   it("should throw if SecondsPath does not resolve to a non-negative integer", async () => {
@@ -125,7 +147,9 @@ describe("WaitState", () => {
 
     await expect(state.execute({ delay: -5 })).rejects.toThrow(StateError);
     await expect(state.execute({ delay: 0.5 })).rejects.toThrow(StateError);
-    await expect(state.execute({ delay: "not a number" })).rejects.toThrow(StateError);
+    await expect(state.execute({ delay: "not a number" })).rejects.toThrow(
+      StateError,
+    );
   });
 
   it("should throw if Timestamp is invalid", async () => {
@@ -146,7 +170,9 @@ describe("WaitState", () => {
     });
 
     await expect(state.execute({ time: 12345 })).rejects.toThrow(StateError);
-    await expect(state.execute({ time: "invalid-date" })).rejects.toThrow(StateError);
+    await expect(state.execute({ time: "invalid-date" })).rejects.toThrow(
+      StateError,
+    );
   });
 
   it("should serialize to dict correctly", () => {
