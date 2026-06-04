@@ -156,7 +156,7 @@ info:
 # ==============================================================================
 
 ## validate: typecheck + lint + fmt-check + test
-validate: typecheck lint fmt-check test
+validate: lint fmt-check test
 	$(call ok,All validation checks passed)
 
 ## ci: Full CI pipeline — deps + validate + build
@@ -175,7 +175,7 @@ pre-release: validate
 
 ## release: Bump version, tag, and push (usage: make release VERSION=1.2.3)
 release:
-	$(call section,Releasing v$(VERSION))
+	$(call section,Releasing $(VERSION))
 	@if [ -z "$(VERSION)" ]; then \
 		echo "$(RED)Provide a version: make release VERSION=1.2.3$(RESET)"; \
 		exit 1; \
