@@ -3,14 +3,17 @@
  *
  * Manages state machine executions, task handlers, and execution lifecycle.
  */
-import { Execution } from '../execution/Execution';
+import { Execution } from "../execution/Execution";
 
 // Use 'unknown' to avoid circular dependencies with BaseState while maintaining strict typing
 export interface StateMachineInterface {
   getStartAt(): string;
   getState(name: string): unknown;
   isTimeout(startTime: Date): boolean;
-  runExecution(execCtx: Execution, context?: Record<string, unknown>): Promise<Execution>;
+  runExecution(
+    execCtx: Execution,
+    context?: Record<string, unknown>,
+  ): Promise<Execution>;
 }
 
 export type TaskHandler = (inputData: unknown) => Promise<unknown> | unknown;
@@ -25,9 +28,9 @@ export abstract class Executor {
    * @returns Completed execution context
    */
   abstract execute(
-      sm: StateMachineInterface,
-      execCtx: Execution,
-      context?: Record<string, unknown>
+    sm: StateMachineInterface,
+    execCtx: Execution,
+    context?: Record<string, unknown>,
   ): Promise<Execution>;
 
   /**
@@ -104,9 +107,9 @@ export class BaseExecutor extends Executor {
    * Execute a state machine.
    */
   public async execute(
-      sm: StateMachineInterface,
-      execCtx: Execution,
-      context?: Record<string, unknown>
+    sm: StateMachineInterface,
+    execCtx: Execution,
+    context?: Record<string, unknown>,
   ): Promise<Execution> {
     if (!context) {
       context = {};
@@ -178,7 +181,10 @@ export class BaseExecutor extends Executor {
    * @param inputData - Input data
    * @returns Task output
    */
-  public async executeGoTask(taskState: unknown, inputData: unknown): Promise<unknown> {
+  public async executeGoTask(
+    taskState: unknown,
+    inputData: unknown,
+  ): Promise<unknown> {
     // Placeholder - actual implementation would use taskState.resource
     return inputData;
   }

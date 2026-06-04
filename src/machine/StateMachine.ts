@@ -3,11 +3,11 @@
  *
  * Main state machine class that loads, validates, and executes state machines.
  */
-import * as yaml from 'js-yaml';
-import { BaseState } from '../states/base';
-import { Execution } from '../execution/Execution';
-import { StateFactory } from '../factory/StateFactory';
-import { StateMachineValidator } from '../validator/StateMachineValidator';
+import * as yaml from "js-yaml";
+import { BaseState } from "../states/base";
+import { Execution } from "../execution/Execution";
+import { StateFactory } from "../factory/StateFactory";
+import { StateMachineValidator } from "../validator/StateMachineValidator";
 
 export interface StateMachineConfig {
   comment?: string | undefined;
@@ -32,7 +32,7 @@ export class StateMachine {
     this.startAt = config.startAt;
     this.states = config.states;
     this.timeoutSeconds = config.timeoutSeconds;
-    this.version = config.version ?? '1.0';
+    this.version = config.version ?? "1.0";
 
     this._validator = new StateMachineValidator();
     this._createdAt = new Date();
@@ -46,7 +46,9 @@ export class StateMachine {
       const data = JSON.parse(definition) as Record<string, unknown>;
       return this.fromDict(data);
     } catch (e) {
-      throw new Error(`Failed to parse JSON definition: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `Failed to parse JSON definition: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
@@ -58,7 +60,9 @@ export class StateMachine {
       const data = yaml.load(definition) as Record<string, unknown>;
       return this.fromDict(data);
     } catch (e) {
-      throw new Error(`Failed to parse YAML definition: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `Failed to parse YAML definition: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
@@ -67,24 +71,38 @@ export class StateMachine {
    */
   public static fromDict(data: Record<string, unknown>): StateMachine {
     // Safely extract types to satisfy exactOptionalPropertyTypes
-    const comment = typeof data.Comment === 'string' ? data.Comment : undefined;
-    const startAt = typeof data.StartAt === 'string' ? data.StartAt : '';
-    const timeoutSeconds = typeof data.TimeoutSeconds === 'number' ? data.TimeoutSeconds : undefined;
-    const version = typeof data.Version === 'string' ? data.Version : '1.0';
+    const comment = typeof data.Comment === "string" ? data.Comment : undefined;
+    const startAt = typeof data.StartAt === "string" ? data.StartAt : "";
+    const timeoutSeconds =
+      typeof data.TimeoutSeconds === "number" ? data.TimeoutSeconds : undefined;
+    const version = typeof data.Version === "string" ? data.Version : "1.0";
 
-    if (!data.States || typeof data.States !== 'object' || Object.keys(data.States).length === 0) {
-      throw new Error('Failed to unmarshal state machine definition: States is required and cannot be empty');
+    if (
+      !data.States ||
+      typeof data.States !== "object" ||
+      Object.keys(data.States).length === 0
+    ) {
+      throw new Error(
+        "Failed to unmarshal state machine definition: States is required and cannot be empty",
+      );
     }
 
     const stateFactory = new StateFactory();
     const states: Record<string, BaseState> = {};
 
-    for (const [stateName, stateData] of Object.entries(data.States as Record<string, unknown>)) {
+    for (const [stateName, stateData] of Object.entries(
+      data.States as Record<string, unknown>,
+    )) {
       try {
-        const state = stateFactory.createState(stateName, stateData as Record<string, unknown>);
+        const state = stateFactory.createState(
+          stateName,
+          stateData as Record<string, unknown>,
+        );
         states[stateName] = state;
       } catch (e) {
-        throw new Error(`Failed to create state '${stateName}': ${e instanceof Error ? e.message : String(e)}`);
+        throw new Error(
+          `Failed to create state '${stateName}': ${e instanceof Error ? e.message : String(e)}`,
+        );
       }
     }
 
@@ -99,7 +117,9 @@ export class StateMachine {
     try {
       sm.validate();
     } catch (e) {
-      throw new Error(`State machine validation failed: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `State machine validation failed: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
 
     return sm;
@@ -134,10 +154,10 @@ export class StateMachine {
    * Execute the state machine with given input.
    */
   public async execute(
-      inputData: unknown,
-      context?: Record<string, unknown>,
-      executionName?: string,
-      _executionId?: string
+    inputData: unknown,
+    context?: Record<string, unknown>,
+    executionName?: string,
+    _executionId?: string,
   ): Promise<Execution> {
     if (!context) {
       context = {};
@@ -147,7 +167,11 @@ export class StateMachine {
       executionName = `execution-${Math.floor(Date.now() / 1000)}`;
     }
 
-    const execCtx = Execution.newContext(executionName, this.startAt, inputData);
+    const execCtx = Execution.newContext(
+      executionName,
+      this.startAt,
+      inputData,
+    );
 
     return this.runExecution(execCtx, context);
   }
@@ -155,7 +179,10 @@ export class StateMachine {
   /**
    * Run an execution with the given context.
    */
-  public async runExecution(execCtx: Execution, context?: Record<string, unknown>): Promise<Execution> {
+  public async runExecution(
+    execCtx: Execution,
+    context?: Record<string, unknown>,
+  ): Promise<Execution> {
     if (!context) {
       context = {};
     }
@@ -167,11 +194,14 @@ export class StateMachine {
       // Check for timeout
       if (this.timeoutSeconds !== undefined) {
         // @ts-ignore
-        const elapsed = (new Date().getTime() - execCtx.startTime.getTime()) / 1000;
+        const elapsed =
+          (new Date().getTime() - execCtx.startTime.getTime()) / 1000;
         if (elapsed > this.timeoutSeconds) {
-          execCtx.status = 'TIMED_OUT';
+          execCtx.status = "TIMED_OUT";
           execCtx.endTime = new Date();
-          execCtx.error = new Error(`State machine timed out after ${this.timeoutSeconds} seconds`);
+          execCtx.error = new Error(
+            `State machine timed out after ${this.timeoutSeconds} seconds`,
+          );
           return execCtx;
         }
       }
@@ -181,7 +211,7 @@ export class StateMachine {
       try {
         state = this.getState(currentStateName);
       } catch (e) {
-        execCtx.status = 'FAILED';
+        execCtx.status = "FAILED";
         execCtx.endTime = new Date();
         execCtx.error = e instanceof Error ? e : new Error(String(e));
         return execCtx;
@@ -199,7 +229,7 @@ export class StateMachine {
 
         // Check if this is an end state
         if (state.isEnd() || nextState === undefined) {
-          execCtx.status = 'SUCCEEDED';
+          execCtx.status = "SUCCEEDED";
           execCtx.endTime = new Date();
           execCtx.output = output;
           break;
@@ -210,7 +240,7 @@ export class StateMachine {
         currentInput = output;
       } catch (e) {
         // State execution failed
-        execCtx.status = 'FAILED';
+        execCtx.status = "FAILED";
         execCtx.endTime = new Date();
         execCtx.error = e instanceof Error ? e : new Error(String(e));
         execCtx.output = undefined;
@@ -274,7 +304,10 @@ export class StateMachine {
     const result: Record<string, unknown> = {
       StartAt: this.startAt,
       States: Object.fromEntries(
-          Object.entries(this.states).map(([name, state]) => [name, state.toDict()])
+        Object.entries(this.states).map(([name, state]) => [
+          name,
+          state.toDict(),
+        ]),
       ),
     };
 
@@ -286,7 +319,7 @@ export class StateMachine {
       result.TimeoutSeconds = this.timeoutSeconds;
     }
 
-    if (this.version !== '1.0') {
+    if (this.version !== "1.0") {
       result.Version = this.version;
     }
 
@@ -320,7 +353,9 @@ export class ExecutionOptions {
   }
 }
 
-export function withExecutionName(name: string): (opts: ExecutionOptions) => void {
+export function withExecutionName(
+  name: string,
+): (opts: ExecutionOptions) => void {
   return (opts: ExecutionOptions) => {
     opts.name = name;
   };
