@@ -8,6 +8,8 @@ import { PassState, PassStateConfig } from "../states/PassState";
 import { FailState, FailStateConfig } from "../states/FailState";
 import { SucceedState, SucceedStateConfig } from "../states/SucceedState";
 import { TaskState, TaskStateConfig } from "../states/TaskState";
+import { WaitState, WaitStateConfig } from "../states//WaitState";
+
 import {
   ChoiceState,
   ChoiceRule,
@@ -18,10 +20,6 @@ import {
   MapStateConfig,
   ItemBatcherConfig,
 } from "../states/MapState";
-
-// Note: If WaitState and ParallelState are implemented, import them here.
-// import { WaitState, WaitStateConfig } from '../states/WaitState';
-// import { ParallelState, ParallelStateConfig, Branch } from '../states/ParallelState';
 
 type StateData = Record<string, unknown>;
 type StateCreator = (name: string, data: StateData) => BaseState;
@@ -41,8 +39,7 @@ export class StateFactory {
       Task: this.createTaskState.bind(this),
       Choice: this.createChoiceState.bind(this),
       Map: this.createMapState.bind(this),
-      // Wait: this.createWaitState.bind(this),
-      // Parallel: this.createParallelState.bind(this),
+      Wait: this.createWaitState.bind(this),
     };
     // Note: Uncomment the above lines once WaitState and ParallelState are implemented.
   }
@@ -68,6 +65,22 @@ export class StateFactory {
 
     const creator = this.creators[stateType];
     return creator(name, stateData);
+  }
+
+  private createWaitState(name: string, data: StateData): BaseState {
+    const config: WaitStateConfig = {
+      name,
+      seconds: data.Seconds as number | undefined,
+      secondsPath: data.SecondsPath as string | undefined,
+      timestamp: data.Timestamp as string | undefined,
+      timestampPath: data.TimestampPath as string | undefined,
+      nextState: data.Next as string | undefined,
+      end: (data.End as boolean) ?? false,
+      inputPath: data.InputPath as string | undefined,
+      outputPath: data.OutputPath as string | undefined,
+      comment: data.Comment as string | undefined,
+    };
+    return new WaitState(config);
   }
 
   private createMapState(name: string, data: StateData): BaseState {
