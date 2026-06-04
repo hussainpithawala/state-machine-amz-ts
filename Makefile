@@ -128,10 +128,11 @@ docs:
 		echo "  Installing TypeDoc..."; \
 		npm install -g typedoc; \
 	fi
-	@npx typedoc src/index.ts --out docs --name "$(PACKAGE)"
+
+	@echo "Generating documentation..."
+	@npx typedoc src/index.ts --out docs --name "$(PACKAGE)" --logLevel Verbose
 	@echo "  Documentation: $(BOLD)./docs/index.html$(RESET)"
 	$(call ok,Documentation generated)
-
 # ==============================================================================
 # VERSION & INFO
 # ==============================================================================
