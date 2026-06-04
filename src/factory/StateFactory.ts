@@ -13,6 +13,11 @@ import {
   ChoiceRule,
   ChoiceStateConfig,
 } from "../states/ChoiceState";
+import {
+  MapState,
+  MapStateConfig,
+  ItemBatcherConfig,
+} from "../states/MapState";
 
 // Note: If WaitState and ParallelState are implemented, import them here.
 // import { WaitState, WaitStateConfig } from '../states/WaitState';
@@ -35,6 +40,7 @@ export class StateFactory {
       Succeed: this.createSucceedState.bind(this),
       Task: this.createTaskState.bind(this),
       Choice: this.createChoiceState.bind(this),
+      Map: this.createMapState.bind(this),
       // Wait: this.createWaitState.bind(this),
       // Parallel: this.createParallelState.bind(this),
     };
@@ -62,6 +68,54 @@ export class StateFactory {
 
     const creator = this.creators[stateType];
     return creator(name, stateData);
+  }
+
+  private createMapState(name: string, data: StateData): BaseState {
+    const itemProcessor = (data.ItemProcessor || data.Iterator) as Record<
+      string,
+      unknown
+    >;
+    if (!itemProcessor) {
+      throw new Error(`Map state '${name}' requires ItemProcessor or Iterator`);
+    }
+
+    let itemBatcher: ItemBatcherConfig | undefined;
+    const batcherData = data.ItemBatcher as StateData | undefined;
+    if (batcherData) {
+      itemBatcher = {
+        maxItemsPerBatch: batcherData.MaxItemsPerBatch as number | undefined,
+        maxInputBytesPerBatch: batcherData.MaxInputBytesPerBatch as
+          | number
+          | undefined,
+        batchInput: batcherData.BatchInput as
+          | Record<string, unknown>
+          | undefined,
+      };
+    }
+
+    const config: MapStateConfig = {
+      name,
+      itemProcessor,
+      itemsPath: data.ItemsPath as string | undefined,
+      itemSelector: data.ItemSelector as Record<string, unknown> | undefined,
+      itemBatcher,
+      maxConcurrency: data.MaxConcurrency as number | undefined,
+      toleratedFailurePercentage: data.ToleratedFailurePercentage as
+        | number
+        | undefined,
+      toleratedFailureCount: data.ToleratedFailureCount as number | undefined,
+      nextState: data.Next as string | undefined,
+      end: (data.End as boolean) ?? false,
+      inputPath: data.InputPath as string | undefined,
+      resultPath: data.ResultPath as string | undefined,
+      outputPath: data.OutputPath as string | undefined,
+      resultSelector: data.ResultSelector as
+        | Record<string, unknown>
+        | undefined,
+      comment: data.Comment as string | undefined,
+    };
+
+    return new MapState(config);
   }
 
   private createPassState(name: string, data: StateData): BaseState {
