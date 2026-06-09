@@ -185,7 +185,7 @@ release:
 		exit 1; \
 	fi
 	$(MAKE) pre-release
-	@npm version $(VERSION) --no-git-tag-version
+	@npm version $(VERSION) --no-git-tag-version --allow-same-version
 	@git add package.json
 	@git commit -m "chore: release v$(VERSION)"
 	@git tag -a "v$(VERSION)" -m "Release v$(VERSION)"
