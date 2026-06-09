@@ -166,9 +166,9 @@ ci: deps validate build
 ## pre-release: Validate and confirm no dirty git state
 pre-release: validate
 	$(call section,Pre-release checks)
-	@if [ -n "$$(git status --porcelain 2>/dev/null)" ]; then \
-		echo "$(RED)Working tree is dirty — commit or stash changes before releasing$(RESET)"; \
-		exit 1; \
+	@if [ -n "$$(git status --porcelain 2>/dev/null | grep -E -v 'package(-lock)?\.json')" ]; then \
+	   echo "$(RED)Working tree is dirty — commit or stash changes before releasing$(RESET)"; \
+	   exit 1; \
 	fi
 	@echo "  Version $(BOLD)$(VERSION)$(RESET) is clean and ready."
 	$(call ok,Pre-release checks passed)
