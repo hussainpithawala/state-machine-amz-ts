@@ -186,8 +186,8 @@ release:
 	fi
 	$(MAKE) pre-release
 	@npm version $(VERSION) --no-git-tag-version --allow-same-version
-	@git commit -m "chore: release v$(VERSION)"
-	@git tag -a "v$(VERSION)" -m "Release v$(VERSION)"
+	@git commit -m "chore: release $(VERSION)"
+	@git tag -a "$(VERSION)" -m "Release $(VERSION)"
 	@git push origin main --follow-tags
 	$(call ok,Tagged and pushed v$(VERSION) '-' GitHub Actions will publish to NPM)
 
