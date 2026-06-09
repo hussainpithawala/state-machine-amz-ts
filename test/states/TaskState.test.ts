@@ -3,7 +3,7 @@
  */
 import { TaskState } from "./../../src/states/TaskState";
 import { CatchRule, RetryRule } from "./../../src/states/base";
-import {TaskHandler} from "src";
+import { TaskHandler } from "src";
 
 const createMockHandler = (
   executeFunc: (

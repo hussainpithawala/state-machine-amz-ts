@@ -228,39 +228,39 @@ export class StateFactory {
   private createChoiceState(name: string, data: StateData): BaseState {
     const parseRule = (ruleData: StateData): ChoiceRule => {
       const rule = new ChoiceRule({
-        "variable": ruleData.Variable as string | undefined,
-        "next": ruleData.Next as string | undefined,
-        "stringEquals": ruleData.StringEquals as string | undefined,
-        "stringLessThan": ruleData.StringLessThan as string | undefined,
-        "stringGreaterThan": ruleData.StringGreaterThan as string | undefined,
-        "stringLessThanEquals": ruleData.StringLessThanEquals as
+        variable: ruleData.Variable as string | undefined,
+        next: ruleData.Next as string | undefined,
+        stringEquals: ruleData.StringEquals as string | undefined,
+        stringLessThan: ruleData.StringLessThan as string | undefined,
+        stringGreaterThan: ruleData.StringGreaterThan as string | undefined,
+        stringLessThanEquals: ruleData.StringLessThanEquals as
           | string
           | undefined,
-        "stringGreaterThanEquals": ruleData.StringGreaterThanEquals as
+        stringGreaterThanEquals: ruleData.StringGreaterThanEquals as
           | string
           | undefined,
-        "numericEquals": ruleData.NumericEquals as number | undefined,
-        "numericLessThan": ruleData.NumericLessThan as number | undefined,
-        "numericGreaterThan": ruleData.NumericGreaterThan as number | undefined,
-        "numericLessThanEquals": ruleData.NumericLessThanEquals as
+        numericEquals: ruleData.NumericEquals as number | undefined,
+        numericLessThan: ruleData.NumericLessThan as number | undefined,
+        numericGreaterThan: ruleData.NumericGreaterThan as number | undefined,
+        numericLessThanEquals: ruleData.NumericLessThanEquals as
           | number
           | undefined,
-        "numericGreaterThanEquals": ruleData.NumericGreaterThanEquals as
+        numericGreaterThanEquals: ruleData.NumericGreaterThanEquals as
           | number
           | undefined,
-        "booleanEquals": ruleData.BooleanEquals as boolean | undefined,
-        "timestampEquals": ruleData.TimestampEquals as string | undefined,
-        "timestampLessThan": ruleData.TimestampLessThan as string | undefined,
-        "timestampGreaterThan": ruleData.TimestampGreaterThan as
+        booleanEquals: ruleData.BooleanEquals as boolean | undefined,
+        timestampEquals: ruleData.TimestampEquals as string | undefined,
+        timestampLessThan: ruleData.TimestampLessThan as string | undefined,
+        timestampGreaterThan: ruleData.TimestampGreaterThan as
           | string
           | undefined,
-        "timestampLessThanEquals": ruleData.TimestampLessThanEquals as
+        timestampLessThanEquals: ruleData.TimestampLessThanEquals as
           | string
           | undefined,
-        "timestampGreaterThanEquals": ruleData.TimestampGreaterThanEquals as
+        timestampGreaterThanEquals: ruleData.TimestampGreaterThanEquals as
           | string
           | undefined,
-        "comment": ruleData.Comment as string | undefined,
+        comment: ruleData.Comment as string | undefined,
       });
 
       if (ruleData.And && Array.isArray(ruleData.And)) {

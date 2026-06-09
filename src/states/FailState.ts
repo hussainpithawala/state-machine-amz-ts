@@ -12,15 +12,15 @@ export interface FailStateConfig {
   error: string;
   /** Human-readable error message */
   cause?: string | undefined;
-    /** Human-readable description of the state */
-    comment?: string | undefined;
+  /** Human-readable description of the state */
+  comment?: string | undefined;
 
-    // The following are included for validation purposes - they MUST NOT be set
-    nextState?: string | undefined;
-    end?: boolean | undefined;
-    inputPath?: string | undefined;
-    resultPath?: string | undefined;
-    outputPath?: string | undefined;
+  // The following are included for validation purposes - they MUST NOT be set
+  nextState?: string | undefined;
+  end?: boolean | undefined;
+  inputPath?: string | undefined;
+  resultPath?: string | undefined;
+  outputPath?: string | undefined;
 }
 
 export class FailState extends BaseState {

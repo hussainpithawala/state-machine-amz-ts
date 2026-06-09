@@ -3,7 +3,7 @@
  * Based on the Go implementation structure.
  */
 import { JSONPathProcessor } from "./json_path";
-import {StateType} from "./../types"; // Safe direct import due to 'import type' in json_path.ts
+import { StateType } from "./../types"; // Safe direct import due to 'import type' in json_path.ts
 
 export interface PathProcessor {
   applyInputPath(inputData: unknown, path?: string): unknown;

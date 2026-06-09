@@ -72,9 +72,9 @@ describe("BaseExecutor", () => {
 
   it("should throw when stopping with null execution", async () => {
     const executor = new BaseExecutor();
-    await expect(executor.stop(null as unknown as ExecutionImpl)).rejects.toThrow(
-      "cannot be null or undefined",
-    );
+    await expect(
+      executor.stop(null as unknown as ExecutionImpl),
+    ).rejects.toThrow("cannot be null or undefined");
   });
 
   it("should set execution to ABORTED when stopped", async () => {

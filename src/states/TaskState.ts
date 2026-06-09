@@ -1,9 +1,21 @@
 /**
  * Task state implementation for Amazon States Language.
  */
-import type {PathProcessor} from "./base";
-import {BaseState, CatchRule, getPathProcessor, RetryRule, StateError, ValidateOptions,} from "./base";
-import {DefaultTaskHandler, EXECUTION_CONTEXT_KEY, ExecutionContext, TaskHandler} from "./../types";
+import type { PathProcessor } from "./base";
+import {
+  BaseState,
+  CatchRule,
+  getPathProcessor,
+  RetryRule,
+  StateError,
+  ValidateOptions,
+} from "./base";
+import {
+  DefaultTaskHandler,
+  EXECUTION_CONTEXT_KEY,
+  ExecutionContext,
+  TaskHandler,
+} from "./../types";
 
 export interface TaskStateConfig {
   name: string;
@@ -76,7 +88,6 @@ export class TaskState extends BaseState {
         `Task state '${this.name}' HeartbeatSeconds must be less than TimeoutSeconds`,
       );
     }
-
 
     for (let i = 0; i < this.retry.length; i++) {
       const policy = this.retry[i];
@@ -312,7 +323,11 @@ export class TaskState extends BaseState {
     let output = result;
 
     if (this.resultSelector !== undefined) {
-      output = this.expandValueForTaskState(this.resultSelector, { $: result }, processor); // 👈 Pass processor
+      output = this.expandValueForTaskState(
+        this.resultSelector,
+        { $: result },
+        processor,
+      ); // 👈 Pass processor
     }
 
     output = processor.applyResultPath(processedInput, output, this.resultPath);
@@ -347,7 +362,9 @@ export class TaskState extends BaseState {
       return processor.applyInputPath(data, template);
     }
     if (Array.isArray(template)) {
-      return template.map((item) => this.expandValueForTaskState(item, context, processor));
+      return template.map((item) =>
+        this.expandValueForTaskState(item, context, processor),
+      );
     }
     if (typeof template === "object" && template !== null) {
       const result: Record<string, unknown> = {};

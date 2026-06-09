@@ -14,12 +14,12 @@ import {
 export interface SucceedStateConfig {
   name: string;
   inputPath?: string | undefined;
-    outputPath?: string | undefined;
-    comment?: string | undefined;
-    // The following are included for validation purposes - they MUST not be set
-    nextState?: string | undefined;
-    end?: boolean | undefined;
-    resultPath?: string | undefined;
+  outputPath?: string | undefined;
+  comment?: string | undefined;
+  // The following are included for validation purposes - they MUST not be set
+  nextState?: string | undefined;
+  end?: boolean | undefined;
+  resultPath?: string | undefined;
 }
 
 export class SucceedState extends BaseState {

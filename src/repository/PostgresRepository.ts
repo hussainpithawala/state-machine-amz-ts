@@ -2,7 +2,11 @@
 // Requires: npm install pg @types/pg
 // Mirrors the SQLAlchemy implementation in state-machine-amz-py
 
-import type { Execution, StateHistoryInterface, ExecutionFilter } from "../types";
+import type {
+  Execution,
+  StateHistoryInterface,
+  ExecutionFilter,
+} from "../types";
 import type { Repository } from "./Repository";
 
 export class PostgresRepository implements Repository {
@@ -30,7 +34,9 @@ export class PostgresRepository implements Repository {
     throw new Error("PostgresRepository not yet implemented");
   }
 
-  async getStateHistory(_executionId: string): Promise<StateHistoryInterface[]> {
+  async getStateHistory(
+    _executionId: string,
+  ): Promise<StateHistoryInterface[]> {
     throw new Error("PostgresRepository not yet implemented");
   }
 }

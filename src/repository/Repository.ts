@@ -1,4 +1,8 @@
-import type { Execution, StateHistoryInterface, ExecutionFilter } from "../types";
+import type {
+  Execution,
+  StateHistoryInterface,
+  ExecutionFilter,
+} from "../types";
 
 export interface Repository {
   saveExecution(execution: Execution): Promise<void>;

@@ -27,8 +27,7 @@ export class WaitState extends BaseState {
   seconds?: number | undefined;
   secondsPath?: string | undefined;
   timestamp?: string | undefined;
-  timestampPath?: string | undefined
-  ;
+  timestampPath?: string | undefined;
 
   constructor(config: WaitStateConfig) {
     super();

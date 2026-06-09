@@ -7,7 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { StateMachine } from "../../src/machine/StateMachine";
 import { PassState } from "../../src/states/PassState";
-import {ExecutionContext} from "src/types";
+import { ExecutionContext } from "src/types";
 
 // ==========================================
 // Mock Execution Context
