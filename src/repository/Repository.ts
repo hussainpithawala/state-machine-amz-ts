@@ -1,12 +1,12 @@
-import type { Execution, StateHistory, ExecutionFilter } from "../types";
+import type { ExecutionInterface, StateHistoryInterface, ExecutionFilter } from "../types";
 
 export interface Repository {
-  saveExecution(execution: Execution): Promise<void>;
-  getExecution(id: string): Promise<Execution | null>;
+  saveExecution(execution: ExecutionInterface): Promise<void>;
+  getExecution(id: string): Promise<ExecutionInterface | null>;
   updateExecution(
-    execution: Partial<Execution> & { id: string },
+    execution: Partial<ExecutionInterface> & { id: string },
   ): Promise<void>;
-  listExecutions(filter?: ExecutionFilter): Promise<Execution[]>;
-  saveStateHistory(history: StateHistory): Promise<void>;
-  getStateHistory(executionId: string): Promise<StateHistory[]>;
+  listExecutions(filter?: ExecutionFilter): Promise<ExecutionInterface[]>;
+  saveStateHistory(history: StateHistoryInterface): Promise<void>;
+  getStateHistory(executionId: string): Promise<StateHistoryInterface[]>;
 }

@@ -3,7 +3,7 @@
  *
  * Manages state machine executions, task handlers, and execution lifecycle.
  */
-import { Execution } from "../execution/Execution";
+import Execution from "../execution/Execution";
 
 // Use 'unknown' to avoid circular dependencies with BaseState while maintaining strict typing
 export interface StateMachineInterface {

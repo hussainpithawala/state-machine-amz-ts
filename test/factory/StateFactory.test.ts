@@ -95,10 +95,12 @@ describe("StateFactory", () => {
       "arn:aws:lambda:us-east-1:123456789012:function:HelloWorld",
     );
     expect((state as TaskState).retry).toHaveLength(1);
+    // @ts-ignore
     expect((state as TaskState).retry[0].errorEquals).toEqual([
       "States.Timeout",
     ]);
     expect((state as TaskState).catch).toHaveLength(1);
+    // @ts-ignore
     expect((state as TaskState).catch[0].nextState).toBe("ErrorHandler");
   });
 
@@ -125,11 +127,17 @@ describe("StateFactory", () => {
 
     const choiceState = state as ChoiceState;
     expect(choiceState.choices).toHaveLength(3);
+    // @ts-ignore
     expect(choiceState.choices[0].variable).toBe("$.value");
+    // @ts-ignore
     expect(choiceState.choices[0].numericEquals).toBe(1);
+    // @ts-ignore
     expect(choiceState.choices[0].next).toBe("One");
+    // @ts-ignore
     expect(choiceState.choices[1].andRules).toHaveLength(2);
+    // @ts-ignore
     expect(choiceState.choices[2].notRule).toBeDefined();
+    // @ts-ignore
     expect(choiceState.choices[2].notRule!.variable).toBe("$.flag");
     expect(choiceState.default).toBe("DefaultState");
   });

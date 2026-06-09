@@ -1,145 +1,37 @@
 /**
  * Task state implementation for Amazon States Language.
  */
-import {
-  BaseState,
-  CatchRule,
-  RetryRule,
-  StateError,
-  getPathProcessor,
-  ValidateOptions,
-} from "./base";
-import type { PathProcessor } from "./base";
-
-const EXECUTION_CONTEXT_KEY = "executionContext";
-
-export interface TaskHandler {
-  execute(
-    resource: string,
-    inputData: unknown,
-    parameters?: Record<string, unknown>,
-  ): Promise<unknown>;
-  executeWithTimeout(
-    resource: string,
-    inputData: unknown,
-    parameters?: Record<string, unknown>,
-    timeoutSeconds?: number,
-    context?: Record<string, unknown>,
-  ): Promise<unknown>;
-  canHandle(resource: string): boolean;
-}
-
-export interface ExecutionContext {
-  getTaskHandler(
-    resource: string,
-  ):
-    | TaskHandler
-    | ((
-        resource: string,
-        inputData: unknown,
-        parameters?: Record<string, unknown>,
-      ) => Promise<unknown>)
-    | null;
-}
-
-export class DefaultTaskHandler implements TaskHandler {
-  async execute(
-    resource: string,
-    inputData: unknown,
-    _parameters?: Record<string, unknown>,
-    context?: Record<string, unknown>,
-  ): Promise<unknown> {
-    if (!context) context = {};
-    const execCtx = context[EXECUTION_CONTEXT_KEY] as
-      | ExecutionContext
-      | undefined;
-
-    if (execCtx) {
-      const handler = execCtx.getTaskHandler(resource);
-      if (handler) {
-        return typeof handler === "function"
-          ? await handler(resource, inputData, _parameters)
-          : await handler.execute(resource, inputData, _parameters);
-      }
-    }
-    return inputData; // Fallback
-  }
-
-  async executeWithTimeout(
-    resource: string,
-    inputData: unknown,
-    parameters?: Record<string, unknown>,
-    timeoutSeconds?: number,
-    context?: Record<string, unknown>,
-  ): Promise<unknown> {
-    if (!timeoutSeconds || timeoutSeconds <= 0) {
-      return this.execute(resource, inputData, parameters, context);
-    }
-
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(
-        () =>
-          reject(
-            new Error(
-              `Task execution timed out after ${timeoutSeconds} seconds`,
-            ),
-          ),
-        timeoutSeconds * 1000,
-      );
-    });
-
-    try {
-      return await Promise.race([
-        this.execute(resource, inputData, parameters, context),
-        timeoutPromise,
-      ]);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("timed out")) {
-        throw new StateError(
-          `Task execution timed out after ${timeoutSeconds} seconds`,
-          "UnknownState",
-          "States.Timeout",
-        );
-      }
-      throw error;
-    } finally {
-      clearTimeout(timeoutId!);
-    }
-  }
-
-  canHandle(_resource: string): boolean {
-    return true;
-  }
-}
+import type {PathProcessor} from "./base";
+import {BaseState, CatchRule, getPathProcessor, RetryRule, StateError, ValidateOptions,} from "./base";
+import {DefaultTaskHandler, EXECUTION_CONTEXT_KEY, ExecutionContext, TaskHandler} from "./../types";
 
 export interface TaskStateConfig {
   name: string;
   resource: string;
-  parameters?: Record<string, unknown>;
-  timeoutSeconds?: number;
-  heartbeatSeconds?: number;
-  retry?: RetryRule[];
-  catch?: CatchRule[];
-  resultSelector?: Record<string, unknown>;
-  taskHandler?: TaskHandler;
-  nextState?: string;
-  end?: boolean;
-  inputPath?: string;
-  resultPath?: string;
-  outputPath?: string;
-  comment?: string;
+  parameters?: Record<string, unknown> | undefined;
+  timeoutSeconds?: number | undefined;
+  heartbeatSeconds?: number | undefined;
+  retry?: RetryRule[] | undefined;
+  catch?: CatchRule[] | undefined;
+  resultSelector?: Record<string, unknown> | undefined;
+  taskHandler?: TaskHandler | undefined;
+  nextState?: string | undefined;
+  end?: boolean | undefined;
+  inputPath?: string | undefined;
+  resultPath?: string | undefined;
+  outputPath?: string | undefined;
+  comment?: string | undefined;
 }
 
 export class TaskState extends BaseState {
   resource: string;
-  parameters?: Record<string, unknown>;
-  timeoutSeconds?: number;
-  heartbeatSeconds?: number;
+  parameters?: Record<string, unknown> | undefined;
+  timeoutSeconds?: number | undefined;
+  heartbeatSeconds?: number | undefined;
   retry: RetryRule[];
   catch: CatchRule[];
-  resultSelector?: Record<string, unknown>;
-  taskHandler?: TaskHandler;
+  resultSelector?: Record<string, unknown> | undefined;
+  taskHandler?: TaskHandler | undefined;
 
   constructor(config: TaskStateConfig) {
     super();
@@ -185,13 +77,14 @@ export class TaskState extends BaseState {
       );
     }
 
+
     for (let i = 0; i < this.retry.length; i++) {
       const policy = this.retry[i];
-      if (!policy.errorEquals || policy.errorEquals.length === 0)
+      if (!policy || !policy.errorEquals || policy.errorEquals.length === 0)
         throw new Error(
           `Task state '${this.name}' Retry policy ${i}: ErrorEquals is required`,
         );
-      if (policy.backoffRate < 1.0)
+      if (policy && policy.backoffRate < 1.0)
         throw new Error(
           `Task state '${this.name}' Retry policy ${i}: BackoffRate must be >= 1.0`,
         );
@@ -199,11 +92,11 @@ export class TaskState extends BaseState {
 
     for (let i = 0; i < this.catch.length; i++) {
       const policy = this.catch[i];
-      if (!policy.errorEquals || policy.errorEquals.length === 0)
+      if (!policy || !policy.errorEquals || policy.errorEquals.length === 0)
         throw new Error(
           `Task state '${this.name}' Catch policy ${i}: ErrorEquals is required`,
         );
-      if (!policy.nextState)
+      if (!policy || !policy.nextState)
         throw new Error(
           `Task state '${this.name}' Catch policy ${i}: Next is required`,
         );
@@ -256,7 +149,7 @@ export class TaskState extends BaseState {
 
     let taskInput = processedInput;
     if (this.parameters !== undefined) {
-      taskInput = this.expandValue(
+      taskInput = this.expandValueForTaskState(
         this.parameters,
         { $: processedInput },
         processor,
@@ -419,7 +312,7 @@ export class TaskState extends BaseState {
     let output = result;
 
     if (this.resultSelector !== undefined) {
-      output = this.expandValue(this.resultSelector, { $: result }, processor); // 👈 Pass processor
+      output = this.expandValueForTaskState(this.resultSelector, { $: result }, processor); // 👈 Pass processor
     }
 
     output = processor.applyResultPath(processedInput, output, this.resultPath);
@@ -443,7 +336,7 @@ export class TaskState extends BaseState {
     );
   }
 
-  private expandValue(
+  private expandValueForTaskState(
     template: unknown,
     context: Record<string, unknown>,
     processor: PathProcessor,
@@ -454,12 +347,12 @@ export class TaskState extends BaseState {
       return processor.applyInputPath(data, template);
     }
     if (Array.isArray(template)) {
-      return template.map((item) => this.expandValue(item, context, processor));
+      return template.map((item) => this.expandValueForTaskState(item, context, processor));
     }
     if (typeof template === "object" && template !== null) {
       const result: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(template)) {
-        result[key] = this.expandValue(value, context, processor);
+        result[key] = this.expandValueForTaskState(value, context, processor);
       }
       return result;
     }

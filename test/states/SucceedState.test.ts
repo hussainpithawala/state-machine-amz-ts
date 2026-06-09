@@ -360,7 +360,7 @@ describe("SucceedState", () => {
     expect(typeof state.setPathProcessor).toBe("function");
 
     expect(state.stateName).toBe("InheritanceTest");
-    expect(state.stateType).toBe("Succeed");
+    expect(state.stateTypeAsString).toBe("Succeed");
     expect(state.getNext()).toBeUndefined();
     expect(state.isEnd()).toBe(false);
   });

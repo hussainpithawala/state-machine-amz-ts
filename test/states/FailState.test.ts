@@ -487,7 +487,7 @@ describe("FailState", () => {
     expect(typeof state.getNextStates).toBe("function");
 
     expect(state.stateName).toBe("InheritanceTest");
-    expect(state.stateType).toBe("Fail");
+    expect(state.stateTypeAsString).toBe("Fail");
     expect(state.getNext()).toBeUndefined();
     expect(state.isEnd()).toBe(false);
   });

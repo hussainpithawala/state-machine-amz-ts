@@ -25,7 +25,7 @@ export interface ChoiceRuleConfig {
   numericLessThanEquals?: number | undefined;
   numericGreaterThanEquals?: number | undefined;
   // Boolean comparison operator
-  booleanEquals?: boolean;
+  booleanEquals?: boolean | undefined;
   // Timestamp comparison operators
   timestampEquals?: string | undefined;
   timestampLessThan?: string | undefined;
@@ -56,7 +56,7 @@ export class ChoiceRule {
   numericLessThanEquals?: number | undefined;
   numericGreaterThanEquals?: number | undefined;
   // Boolean comparison operator
-  booleanEquals?: boolean;
+  booleanEquals?: boolean | undefined;
   // Timestamp comparison operators
   timestampEquals?: string | undefined;
   timestampLessThan?: string | undefined;
@@ -149,12 +149,12 @@ export class ChoiceRule {
 
 export interface ChoiceStateConfig {
   name: string;
-  choices?: ChoiceRule[];
-  default?: string;
-  inputPath?: string;
-  resultPath?: string;
-  outputPath?: string;
-  comment?: string;
+  choices?: ChoiceRule[] | undefined;
+  default?: string | undefined;
+  inputPath?: string | undefined;
+  resultPath?: string | undefined;
+  outputPath?: string | undefined;
+  comment?: string | undefined;
 }
 
 export class ChoiceState extends BaseState {

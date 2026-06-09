@@ -11,16 +11,16 @@ export interface FailStateConfig {
   /** Required error name/code for the failure (e.g., "States.Timeout", "CustomError") */
   error: string;
   /** Human-readable error message */
-  cause?: string;
-  /** Human-readable description of the state */
-  comment?: string;
+  cause?: string | undefined;
+    /** Human-readable description of the state */
+    comment?: string | undefined;
 
-  // The following are included for validation purposes - they MUST NOT be set
-  nextState?: string;
-  end?: boolean;
-  inputPath?: string;
-  resultPath?: string;
-  outputPath?: string;
+    // The following are included for validation purposes - they MUST NOT be set
+    nextState?: string | undefined;
+    end?: boolean | undefined;
+    inputPath?: string | undefined;
+    resultPath?: string | undefined;
+    outputPath?: string | undefined;
 }
 
 export class FailState extends BaseState {

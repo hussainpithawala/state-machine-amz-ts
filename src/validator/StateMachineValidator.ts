@@ -73,7 +73,7 @@ export class StateMachineValidator {
   ): void {
     const terminalTypes = new Set(["Fail", "Succeed"]);
 
-    if (!terminalTypes.has(state.stateType)) {
+    if (!terminalTypes.has(state.stateTypeAsString)) {
       if (
         !state.isEnd() &&
         state.getNext() === undefined &&
@@ -100,7 +100,7 @@ export class StateMachineValidator {
     const terminalTypes = new Set(["Fail", "Succeed"]);
 
     const hasTerminal = Object.values(states).some(
-      (state) => state.isEnd() || terminalTypes.has(state.stateType),
+      (state) => state.isEnd() || terminalTypes.has(state.stateTypeAsString),
     );
 
     if (!hasTerminal) {
@@ -135,7 +135,7 @@ export class StateMachineValidator {
     allStates: Record<string, BaseState>,
   ): void {
     // Validate Choice state
-    if (state.stateType === "Choice") {
+    if (state.stateTypeAsString === "Choice") {
       const choiceState = state as ChoiceStateShape;
 
       if (choiceState.default !== undefined && choiceState.default !== null) {
@@ -159,7 +159,7 @@ export class StateMachineValidator {
     }
 
     // Validate Task state Catch
-    if (state.stateType === "Task") {
+    if (state.stateTypeAsString === "Task") {
       const taskState = state as TaskStateShape;
 
       if (taskState.catch && Array.isArray(taskState.catch)) {

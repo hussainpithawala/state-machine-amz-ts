@@ -1,8 +1,9 @@
 /**
  * Tests for TaskState implementation.
  */
-import { TaskState, TaskHandler } from "./../../src/states/TaskState";
+import { TaskState } from "./../../src/states/TaskState";
 import { CatchRule, RetryRule } from "./../../src/states/base";
+import {TaskHandler} from "src";
 
 const createMockHandler = (
   executeFunc: (

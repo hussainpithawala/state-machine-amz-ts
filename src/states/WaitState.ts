@@ -12,22 +12,23 @@ import {
 
 export interface WaitStateConfig {
   name: string;
-  seconds?: number;
-  secondsPath?: string;
-  timestamp?: string;
-  timestampPath?: string;
-  nextState?: string;
-  end?: boolean;
-  inputPath?: string;
-  outputPath?: string;
-  comment?: string;
+  seconds?: number | undefined;
+  secondsPath?: string | undefined;
+  timestamp?: string | undefined;
+  timestampPath?: string | undefined;
+  nextState?: string | undefined;
+  end?: boolean | undefined;
+  inputPath?: string | undefined;
+  outputPath?: string | undefined;
+  comment?: string | undefined;
 }
 
 export class WaitState extends BaseState {
-  seconds?: number;
-  secondsPath?: string;
-  timestamp?: string;
-  timestampPath?: string;
+  seconds?: number | undefined;
+  secondsPath?: string | undefined;
+  timestamp?: string | undefined;
+  timestampPath?: string | undefined
+  ;
 
   constructor(config: WaitStateConfig) {
     super();

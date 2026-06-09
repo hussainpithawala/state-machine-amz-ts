@@ -96,7 +96,7 @@ describe("StateMachine", () => {
     const execCtx = await sm.execute({ key: "value" });
 
     expect(execCtx.status).toBe("SUCCEEDED");
-    expect(execCtx.currentState).toBe("FirstState");
+    expect(execCtx.currentStateName).toBe("FirstState");
     expect(execCtx.output).toBeDefined();
   });
 
@@ -223,8 +223,11 @@ describe("StateMachine", () => {
     const execCtx = await sm.execute("initial");
 
     expect(execCtx.history).toHaveLength(3);
+    // @ts-ignore
     expect(execCtx.history[0].stateName).toBe("FirstState");
+    // @ts-ignore
     expect(execCtx.history[1].stateName).toBe("SecondState");
+    // @ts-ignore
     expect(execCtx.history[2].stateName).toBe("ThirdState");
   });
 
@@ -241,7 +244,7 @@ describe("StateMachine", () => {
     expect(execCtx.endTime!.getTime()).toBeGreaterThanOrEqual(
       execCtx.startTime.getTime(),
     );
-    expect(execCtx.currentState).toBe("FirstState");
+    expect(execCtx.currentStateName).toBe("FirstState");
   });
 
   // Note: YAML tests require 'js-yaml' to be installed.

@@ -485,7 +485,7 @@ describe("PassState", () => {
     expect(typeof state.setPathProcessor).toBe("function");
 
     expect(state.stateName).toBe("InheritanceTest");
-    expect(state.stateType).toBe("Pass");
+    expect(state.stateTypeAsString).toBe("Pass");
     expect(state.getNext()).toBe("NextState");
     expect(state.isEnd()).toBe(false);
   });

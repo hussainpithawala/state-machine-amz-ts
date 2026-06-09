@@ -5,7 +5,7 @@
  */
 import * as yaml from "js-yaml";
 import { BaseState } from "../states/base";
-import { Execution } from "../execution/Execution";
+import Execution from "../execution/Execution";
 import { StateFactory } from "../factory/StateFactory";
 import { StateMachineValidator } from "../validator/StateMachineValidator";
 
@@ -218,14 +218,14 @@ export class StateMachine {
       }
 
       // Update execution context
-      execCtx.currentState = currentStateName;
+      execCtx.currentState = state;
 
       // Execute the state
       try {
         const [output, nextState] = await state.execute(currentInput, context);
 
         // Record state history
-        execCtx.addStateHistory(currentStateName, currentInput, output);
+        execCtx.addStateHistory(state, currentInput, output);
 
         // Check if this is an end state
         if (state.isEnd() || nextState === undefined) {
@@ -246,7 +246,7 @@ export class StateMachine {
         execCtx.output = undefined;
 
         // Record failed state in history
-        execCtx.addStateHistory(currentStateName, currentInput, undefined);
+        execCtx.addStateHistory(state, currentInput, undefined);
         return execCtx;
       }
     }
@@ -276,7 +276,7 @@ export class StateMachine {
     // Count state types
     const stateTypes: Record<string, number> = {};
     for (const state of Object.values(this.states)) {
-      const stateType = state.stateType;
+      const stateType = state.stateTypeAsString;
       stateTypes[stateType] = (stateTypes[stateType] || 0) + 1;
     }
 

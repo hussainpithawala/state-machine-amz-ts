@@ -2,7 +2,8 @@
  * Base state classes for Amazon States Language implementation.
  * Based on the Go implementation structure.
  */
-import { JSONPathProcessor } from "./json_path"; // Safe direct import due to 'import type' in json_path.ts
+import { JSONPathProcessor } from "./json_path";
+import {StateType} from "./../types"; // Safe direct import due to 'import type' in json_path.ts
 
 export interface PathProcessor {
   applyInputPath(inputData: unknown, path?: string): unknown;
@@ -114,21 +115,21 @@ export interface ValidateOptions {
 
 export abstract class BaseState {
   name!: string;
-  type!: string;
-  nextState?: string;
+  type!: StateType;
+  nextState?: string | undefined;
   end: boolean = false;
-  inputPath?: string;
-  resultPath?: string;
-  outputPath?: string;
-  comment?: string;
+  inputPath?: string | undefined;
+  resultPath?: string | undefined;
+  outputPath?: string | undefined;
+  comment?: string | undefined;
 
   protected _pathProcessor?: PathProcessor;
 
   get stateName(): string {
     return this.name;
   }
-  get stateType(): string {
-    return this.type;
+  get stateTypeAsString(): string {
+    return this.type.toString();
   }
   getNext(): string | undefined {
     return this.nextState;

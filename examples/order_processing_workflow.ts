@@ -8,9 +8,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import { StateMachine } from "../src/machine/StateMachine";
-import { ExecutionContext } from "../src/states/TaskState";
 import { PassState } from "../src/states/PassState";
-import { Execution } from "../src/execution/Execution";
+import Execution from "../src/execution/Execution";
+import {ExecutionContext} from "../src/types";
 
 // ==========================================
 // Mock Execution Context
@@ -129,35 +129,35 @@ function printJSON(data: unknown) {
     console.log(JSON.stringify(data, null, 2));
 }
 
-function printExecutionResults(execCtx: Execution) {
+function printExecutionResults(execution: Execution) {
     console.log("\nExecution Results:");
-    console.log(`  Execution ID: ${execCtx.id}`);
-    console.log(`  Name: ${execCtx.name}`);
-    console.log(`  Status: ${execCtx.status}`);
-    console.log(`  Start Time: ${execCtx.startTime.toISOString()}`);
+    console.log(`  Execution ID: ${execution.id}`);
+    console.log(`  Name: ${execution.name}`);
+    console.log(`  Status: ${execution.status}`);
+    console.log(`  Start Time: ${execution.startTime.toISOString()}`);
 
-    if (execCtx.endTime) {
-        console.log(`  End Time: ${execCtx.endTime.toISOString()}`);
-        const duration = (execCtx.endTime.getTime() - execCtx.startTime.getTime()) / 1000;
+    if (execution.endTime) {
+        console.log(`  End Time: ${execution.endTime.toISOString()}`);
+        const duration = (execution.endTime.getTime() - execution.startTime.getTime()) / 1000;
         console.log(`  Duration: ${duration.toFixed(3)}s`);
     }
 
-    if (execCtx.error) {
-        console.log(`  Error: ${execCtx.error.message}`);
+    if (execution.error) {
+        console.log(`  Error: ${execution.error.message}`);
     }
 
-    if (execCtx.currentState) {
-        console.log(`  Current State: ${execCtx.currentState}`);
+    if (execution.currentState) {
+        console.log(`  Current State: ${execution.currentState}`);
     }
 
-    if (execCtx.output !== undefined) {
+    if (execution.output !== undefined) {
         console.log("\nOutput Data:");
-        printJSON(execCtx.output);
+        printJSON(execution.output);
     }
 
-    if (execCtx.history && execCtx.history.length > 0) {
-        console.log(`\nState Execution History (${execCtx.history.length} states):`);
-        execCtx.history.forEach((h, i) => {
+    if (execution.history && execution.history.length > 0) {
+        console.log(`\nState Execution History (${execution.history.length} states):`);
+        execution.history.forEach((h, i) => {
             console.log(`  ${i + 1}. State: ${h.stateName} (Time: ${h.timestamp.toISOString()})`);
         });
     }

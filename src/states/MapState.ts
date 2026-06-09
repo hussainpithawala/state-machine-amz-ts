@@ -11,18 +11,18 @@ import {
   ValidateOptions,
 } from "./base";
 import { StateMachine } from "../machine/StateMachine";
-import { Execution } from "../execution/Execution";
+import Execution from "../execution/Execution";
 
 export interface ItemBatcherConfig {
-  maxItemsPerBatch?: number;
-  maxInputBytesPerBatch?: number;
-  batchInput?: Record<string, unknown>;
+  maxItemsPerBatch?: number | undefined;
+  maxInputBytesPerBatch?: number | undefined;
+  batchInput?: Record<string, unknown> | undefined;
 }
 
 export class ItemBatcher {
-  maxItemsPerBatch?: number;
-  maxInputBytesPerBatch?: number;
-  batchInput?: Record<string, unknown>;
+  maxItemsPerBatch?: number | undefined;
+  maxInputBytesPerBatch?: number | undefined;
+  batchInput?: Record<string, unknown> | undefined;
 
   constructor(config: ItemBatcherConfig) {
     this.maxItemsPerBatch = config.maxItemsPerBatch;
@@ -34,31 +34,32 @@ export class ItemBatcher {
 export interface MapStateConfig {
   name: string;
   itemProcessor: Record<string, unknown>;
-  itemsPath?: string;
-  itemSelector?: Record<string, unknown>;
-  itemBatcher?: ItemBatcherConfig;
-  maxConcurrency?: number;
-  toleratedFailurePercentage?: number;
-  toleratedFailureCount?: number;
+  itemsPath?: string | undefined;
+    itemSelector?: Record<string, unknown> | undefined;
+    itemBatcher?: ItemBatcherConfig | undefined;
+    maxConcurrency?: number | undefined;
+    toleratedFailurePercentage?: number | undefined;
+    toleratedFailureCount?: number | undefined;
 
-  // BaseState fields
-  nextState?: string;
-  end?: boolean;
-  inputPath?: string;
-  resultPath?: string;
-  outputPath?: string;
-  resultSelector?: Record<string, unknown>;
-  comment?: string;
+    // BaseState fields
+    nextState?: string | undefined;
+    end?: boolean | undefined;
+    inputPath?: string | undefined;
+    resultPath?: string | undefined;
+    outputPath?: string | undefined;
+    resultSelector?: Record<string, unknown> | undefined;
+    comment?: string | undefined;
 }
 
 export class MapState extends BaseState {
   itemProcessorDef: Record<string, unknown>;
-  itemsPath?: string;
-  itemSelector?: Record<string, unknown>;
-  itemBatcher?: ItemBatcher;
+  itemsPath?: string | undefined;
+  itemSelector?: Record<string, unknown> | undefined;
+  itemBatcher?: ItemBatcher | undefined;
   maxConcurrency: number;
-  toleratedFailurePercentage?: number;
-  toleratedFailureCount?: number;
+  toleratedFailurePercentage?: number | undefined;
+  toleratedFailureCount?: number | undefined;
+  resultSelector: Record<string, unknown> | undefined;
 
   constructor(config: MapStateConfig) {
     super();
@@ -249,8 +250,11 @@ export class MapState extends BaseState {
         // Check tolerance
         const failurePercentage =
           totalItems > 0 ? (failureCount / totalItems) * 100 : 0;
+
         if (
+            // @ts-ignore
           failureCount > this.toleratedFailureCount ||
+            // @ts-ignore
           failurePercentage > this.toleratedFailurePercentage
         ) {
           throw new StateError(

@@ -7,7 +7,7 @@ import {
   StateRegistry,
   StateMachineInterface,
 } from "../../src/executor/Executor";
-import { Execution } from "../../src/execution/Execution";
+import Execution from "../../src/execution/Execution";
 
 describe("StateRegistry", () => {
   it("should register and retrieve task handlers", () => {

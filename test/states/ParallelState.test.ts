@@ -419,7 +419,7 @@ describe("ParallelState", () => {
       ],
     });
 
-    expect(state.stateType).toBe("Parallel");
+    expect(state.stateTypeAsString).toBe("Parallel");
     expect(state.isEnd()).toBe(true);
   });
 
