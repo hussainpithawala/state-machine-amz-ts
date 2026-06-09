@@ -7,7 +7,7 @@ import {
   StateRegistry,
   StateMachineInterface,
 } from "../../src/executor/Executor";
-import Execution from "../../src/execution/Execution";
+import ExecutionImpl from "../../src/execution/ExecutionImpl";
 
 describe("StateRegistry", () => {
   it("should register and retrieve task handlers", () => {
@@ -62,7 +62,7 @@ describe("BaseExecutor", () => {
 
   it("should get status for existing execution", () => {
     const executor = new BaseExecutor();
-    const execCtx = Execution.create("exec-1", "n1", null);
+    const execCtx = ExecutionImpl.create("exec-1", "n1", null);
     // Manually inject for testing internal map
     (executor as any).executions.set(execCtx.id, execCtx);
 
@@ -72,14 +72,14 @@ describe("BaseExecutor", () => {
 
   it("should throw when stopping with null execution", async () => {
     const executor = new BaseExecutor();
-    await expect(executor.stop(null as unknown as Execution)).rejects.toThrow(
+    await expect(executor.stop(null as unknown as ExecutionImpl)).rejects.toThrow(
       "cannot be null or undefined",
     );
   });
 
   it("should set execution to ABORTED when stopped", async () => {
     const executor = new BaseExecutor();
-    const execCtx = Execution.create("exec-1", "test", null);
+    const execCtx = ExecutionImpl.create("exec-1", "test", null);
     (executor as any).executions.set(execCtx.id, execCtx);
 
     const before = new Date();
@@ -99,8 +99,8 @@ describe("BaseExecutor", () => {
 
   it("should list executions", () => {
     const executor = new BaseExecutor();
-    const exec1 = Execution.create("exec-1", "e1", null);
-    const exec2 = Execution.create("exec-2", "e2", null);
+    const exec1 = ExecutionImpl.create("exec-1", "e1", null);
+    const exec2 = ExecutionImpl.create("exec-2", "e2", null);
 
     (executor as any).executions.set(exec1.id, exec1);
     (executor as any).executions.set(exec2.id, exec2);
@@ -137,14 +137,14 @@ describe("BaseExecutor", () => {
       getStartAt: () => "FirstState",
       getState: () => ({}),
       isTimeout: () => false,
-      runExecution: async (execCtx: Execution) => {
+      runExecution: async (execCtx: ExecutionImpl) => {
         execCtx.status = "SUCCEEDED";
         execCtx.endTime = new Date();
         return execCtx;
       },
     };
 
-    const execCtx = Execution.newContext("test", "FirstState", null);
+    const execCtx = ExecutionImpl.newContext("test", "FirstState", null);
     const result = await executor.execute(mockSm, execCtx);
 
     expect(result.isComplete()).toBe(true);

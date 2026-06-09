@@ -1,7 +1,7 @@
 /**
  * Tests for Execution implementation.
  */
-import Execution, {StateHistory} from "../../src/execution/Execution";
+import ExecutionImpl, {StateHistory} from "../../src/execution/ExecutionImpl";
 import {StateFactory} from "../../src/factory/StateFactory";
 import {BaseState} from "../../src/states/base";
 
@@ -16,7 +16,7 @@ describe("Execution", () => {
         state3 = factory.createState("State3", {Type: "Pass", End: true});
     })
     it("should create new execution context", () => {
-        const execCtx = Execution.newContext("test-exec", "StartState", {
+        const execCtx = ExecutionImpl.newContext("test-exec", "StartState", {
             key: "value",
         });
 
@@ -30,20 +30,20 @@ describe("Execution", () => {
     });
 
     it("should create execution with custom ID", () => {
-        const execCtx = Execution.create("custom-id", "test", null);
+        const execCtx = ExecutionImpl.create("custom-id", "test", null);
         expect(execCtx.id).toBe("custom-id");
         expect(execCtx.name).toBe("test");
     });
 
     it("should generate ID if not provided", () => {
-        const execCtx = Execution.create(undefined, "test", null);
+        const execCtx = ExecutionImpl.create(undefined, "test", null);
         expect(execCtx.id).toBeDefined();
         expect(execCtx.id.startsWith("exec-")).toBe(true);
     });
 
 
     it("should add state history", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         execCtx.addStateHistory(state1, {in: "data"}, {out: "result"});
         execCtx.addStateHistory(state2, {in2: "data2"}, {out2: "result2"});
         expect(execCtx.history).toHaveLength(2);
@@ -65,7 +65,7 @@ describe("Execution", () => {
     });
 
     it("should get last executed state", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         execCtx.addStateHistory(state1, null, "result1");
         execCtx.addStateHistory(state2, null, "result2");
 
@@ -76,12 +76,12 @@ describe("Execution", () => {
     });
 
     it("should throw when getting last state with no history", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         expect(() => execCtx.getLastState()).toThrow("No history available");
     });
 
     it("should get history for specific state", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         execCtx.addStateHistory(state1, null, "result1");
         execCtx.addStateHistory(state2, null, "result2");
         execCtx.addStateHistory(state1, null, "result3");
@@ -95,13 +95,13 @@ describe("Execution", () => {
     });
 
     it("should return empty array for non-existent state history", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         execCtx.addStateHistory(state1, null, "result1");
         expect(execCtx.getStateHistory("NonExistent")).toHaveLength(0);
     });
 
     it("should calculate execution duration", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         expect(execCtx.getDuration()).toBeGreaterThanOrEqual(0);
 
         // Simulate completion 5 seconds later
@@ -110,7 +110,7 @@ describe("Execution", () => {
     });
 
     it("should check if execution is complete", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         expect(execCtx.isComplete()).toBe(false);
 
         execCtx.status = "SUCCEEDED";
@@ -130,7 +130,7 @@ describe("Execution", () => {
     });
 
     it("should convert to dictionary", () => {
-        const execCtx = Execution.newContext("test-exec", "Start", {
+        const execCtx = ExecutionImpl.newContext("test-exec", "Start", {
             input: "data",
         });
         execCtx.addStateHistory(state1, {input: "data"}, {output: "result"});
@@ -152,7 +152,7 @@ describe("Execution", () => {
     });
 
     it("should convert to dictionary with error", () => {
-        const execCtx = Execution.newContext("test", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test", "Start", null);
         execCtx.error = new Error("Test error");
         execCtx.status = "FAILED";
 
@@ -189,8 +189,8 @@ describe("Execution", () => {
     });
 
     it("should generate unique execution IDs", () => {
-        const exec1 = Execution.newContext("test1", "Start", null);
-        const exec2 = Execution.newContext("test2", "Start", null);
+        const exec1 = ExecutionImpl.newContext("test1", "Start", null);
+        const exec2 = ExecutionImpl.newContext("test2", "Start", null);
 
         expect(exec1.id.startsWith("exec-")).toBe(true);
         expect(exec2.id.startsWith("exec-")).toBe(true);
@@ -198,7 +198,7 @@ describe("Execution", () => {
     });
 
     it("should have correct string representation", () => {
-        const execCtx = Execution.newContext("test-name", "Start", null);
+        const execCtx = ExecutionImpl.newContext("test-name", "Start", null);
         execCtx.addStateHistory(state1, null, null);
 
         const strRepr = execCtx.toString();
@@ -232,7 +232,7 @@ describe("Execution", () => {
     });
 
     it("should handle complete execution flow", () => {
-        const execCtx = Execution.newContext("complete-test", "Start", {
+        const execCtx = ExecutionImpl.newContext("complete-test", "Start", {
             initial: "data",
         });
         expect(execCtx.status).toBe("RUNNING");
@@ -257,7 +257,7 @@ describe("Execution", () => {
     });
 
     it("should handle execution metadata fields", () => {
-        const execCtx = Execution.create("test-123", "metadata-test", {
+        const execCtx = ExecutionImpl.create("test-123", "metadata-test", {
             test: "data",
         });
         execCtx.stateMachineId = "sm-456";

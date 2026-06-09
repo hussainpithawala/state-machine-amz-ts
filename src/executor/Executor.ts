@@ -3,7 +3,7 @@
  *
  * Manages state machine executions, task handlers, and execution lifecycle.
  */
-import Execution from "../execution/Execution";
+import ExecutionImpl from "../../src/execution/ExecutionImpl";
 
 // Use 'unknown' to avoid circular dependencies with BaseState while maintaining strict typing
 export interface StateMachineInterface {
@@ -11,9 +11,9 @@ export interface StateMachineInterface {
   getState(name: string): unknown;
   isTimeout(startTime: Date): boolean;
   runExecution(
-    execCtx: Execution,
+    execCtx: ExecutionImpl,
     context?: Record<string, unknown>,
-  ): Promise<Execution>;
+  ): Promise<ExecutionImpl>;
 }
 
 export type TaskHandler = (inputData: unknown) => Promise<unknown> | unknown;
@@ -29,9 +29,9 @@ export abstract class Executor {
    */
   abstract execute(
     sm: StateMachineInterface,
-    execCtx: Execution,
+    execCtx: ExecutionImpl,
     context?: Record<string, unknown>,
-  ): Promise<Execution>;
+  ): Promise<ExecutionImpl>;
 
   /**
    * Get the status of an execution.
@@ -40,21 +40,21 @@ export abstract class Executor {
    * @returns Execution context
    * @throws Error if execution not found
    */
-  abstract getStatus(executionId: string): Execution;
+  abstract getStatus(executionId: string): ExecutionImpl;
 
   /**
    * Stop an execution.
    *
    * @param execCtx - Execution to stop
    */
-  abstract stop(execCtx: Execution): Promise<void>;
+  abstract stop(execCtx: ExecutionImpl): Promise<void>;
 
   /**
    * List all active executions.
    *
    * @returns List of execution contexts
    */
-  abstract listExecutions(): Execution[];
+  abstract listExecutions(): ExecutionImpl[];
 }
 
 /**
@@ -94,7 +94,7 @@ export class StateRegistry {
  * Provides common functionality for managing executions and task handlers.
  */
 export class BaseExecutor extends Executor {
-  protected executions: Map<string, Execution>;
+  protected executions: Map<string, ExecutionImpl>;
   public registry: StateRegistry;
 
   constructor() {
@@ -108,9 +108,9 @@ export class BaseExecutor extends Executor {
    */
   public async execute(
     sm: StateMachineInterface,
-    execCtx: Execution,
+    execCtx: ExecutionImpl,
     context?: Record<string, unknown>,
-  ): Promise<Execution> {
+  ): Promise<ExecutionImpl> {
     if (!context) {
       context = {};
     }
@@ -132,7 +132,7 @@ export class BaseExecutor extends Executor {
   /**
    * Get execution status.
    */
-  public getStatus(executionId: string): Execution {
+  public getStatus(executionId: string): ExecutionImpl {
     const exec = this.executions.get(executionId);
     if (!exec) {
       throw new Error(`Execution '${executionId}' not found`);
@@ -143,7 +143,7 @@ export class BaseExecutor extends Executor {
   /**
    * Stop an execution.
    */
-  public async stop(execCtx: Execution): Promise<void> {
+  public async stop(execCtx: ExecutionImpl): Promise<void> {
     if (!execCtx) {
       throw new Error("Execution context cannot be null or undefined");
     }
@@ -158,7 +158,7 @@ export class BaseExecutor extends Executor {
   /**
    * List all active executions.
    */
-  public listExecutions(): Execution[] {
+  public listExecutions(): ExecutionImpl[] {
     return Array.from(this.executions.values());
   }
 

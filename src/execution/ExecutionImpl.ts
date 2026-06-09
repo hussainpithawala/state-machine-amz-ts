@@ -3,7 +3,7 @@
  *
  * Tracks execution state, history, and metadata.
  */
-import {ExecutionInterface, ExecutionStatus, StateHistoryInterface, StateType} from "../../src/types";
+import {Execution, ExecutionStatus, StateHistoryInterface, StateType} from "../../src/types";
 import {BaseState} from "../../src/states/base";
 
 export interface StateHistoryConfig {
@@ -112,7 +112,7 @@ export interface ExecutionConfig {
     stateMachineId: string;
 }
 
-class Execution implements ExecutionInterface {
+class ExecutionImpl implements Execution {
     public id: string;
     public name: string;
     public status?: ExecutionStatus | undefined;
@@ -148,8 +148,8 @@ class Execution implements ExecutionInterface {
         name: string,
         currentStateName: string,
         inputData: unknown
-    ): Execution {
-        return new Execution({
+    ): ExecutionImpl {
+        return new ExecutionImpl({
             id: generateExecutionId(),
             name,
             currentStateName: currentStateName,
@@ -170,8 +170,8 @@ class Execution implements ExecutionInterface {
         id: string | undefined,
         name: string,
         inputData: unknown,
-    ): Execution {
-        return new Execution({
+    ): ExecutionImpl {
+        return new ExecutionImpl({
             id: id || generateExecutionId(),
             stateMachineId: "",
             name,
@@ -295,7 +295,7 @@ class Execution implements ExecutionInterface {
     }
 }
 
-export default Execution
+export default ExecutionImpl
 
 /**
  * Generate a unique execution ID.

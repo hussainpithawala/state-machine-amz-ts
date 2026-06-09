@@ -33,7 +33,7 @@ export interface StateMachineDefinition {
     TimeoutSeconds?: number;
 }
 
-export interface ExecutionInterface {
+export interface Execution {
     id: string;
     name: string;
     stateMachineId?: string | undefined;
@@ -50,6 +50,7 @@ export interface ExecutionInterface {
 }
 
 export interface StateHistoryInterface {
+    timestamp: any;
     id: string;
     executionId: string;
     stateName: string;

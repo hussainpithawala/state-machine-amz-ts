@@ -11,7 +11,7 @@ import {
   ValidateOptions,
 } from "./base";
 import { StateMachine } from "../machine/StateMachine";
-import Execution from "../execution/Execution";
+import ExecutionImpl from "../../src/execution/ExecutionImpl";
 
 export interface ItemBatcherConfig {
   maxItemsPerBatch?: number | undefined;
@@ -223,7 +223,7 @@ export class MapState extends BaseState {
         }
 
         try {
-          const execCtx = Execution.newContext(
+          const execCtx = ExecutionImpl.newContext(
             `map-iteration-${index}`,
             nestedMachine.startAt,
             item,

@@ -5,7 +5,7 @@
  */
 import * as yaml from "js-yaml";
 import { BaseState } from "../states/base";
-import Execution from "../execution/Execution";
+import ExecutionImpl from "../../src/execution/ExecutionImpl";
 import { StateFactory } from "../factory/StateFactory";
 import { StateMachineValidator } from "../validator/StateMachineValidator";
 
@@ -158,7 +158,7 @@ export class StateMachine {
     context?: Record<string, unknown>,
     executionName?: string,
     _executionId?: string,
-  ): Promise<Execution> {
+  ): Promise<ExecutionImpl> {
     if (!context) {
       context = {};
     }
@@ -167,7 +167,7 @@ export class StateMachine {
       executionName = `execution-${Math.floor(Date.now() / 1000)}`;
     }
 
-    const execCtx = Execution.newContext(
+    const execCtx = ExecutionImpl.newContext(
       executionName,
       this.startAt,
       inputData,
@@ -180,9 +180,9 @@ export class StateMachine {
    * Run an execution with the given context.
    */
   public async runExecution(
-    execCtx: Execution,
+    execCtx: ExecutionImpl,
     context?: Record<string, unknown>,
-  ): Promise<Execution> {
+  ): Promise<ExecutionImpl> {
     if (!context) {
       context = {};
     }

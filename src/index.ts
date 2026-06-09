@@ -6,7 +6,7 @@ export {Executor} from "./executor";
 
 // Types
 export type {
-    ExecutionInterface,
+    Execution,
     ExecutionStatus,
     ExecutionFilter,
     StateHistoryInterface,
