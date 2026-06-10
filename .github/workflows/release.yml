@@ -40,8 +40,6 @@ jobs:
         # We remove the NODE_AUTH_TOKEN env variable.
         # npm publish automatically detects the OIDC token.
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm uses this to bypass 2FA
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
